@@ -1,0 +1,151 @@
+<!doctype html>
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>Two Truck</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="pageResource?page=custompage_towtruck&location=style/animate.css" />
+    <link rel="stylesheet" href="pageResource?page=custompage_towtruck&location=style/bootstrap.min.css">
+	<link rel="stylesheet" href="pageResource?page=custompage_towtruck&location=style/main.css">
+	<link rel="stylesheet" href="pageResource?page=custompage_towtruck&location=style/style.css">
+ 
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script type="text/javascript" src="https://www.google.com/uds/?file=visualization&amp;v=1&amp;hl=fr&amp;packages=corechart&amp;async=2"></script>
+	<link type="text/css" href="https://www.google.com/uds/api/visualization/1.0/ff67c3772da186a412ae3231c32409e9/ui+fr.css" rel="stylesheet">
+	<script type="text/javascript" src="https://www.google.com/uds/api/visualization/1.0/ff67c3772da186a412ae3231c32409e9/format+fr,default+fr,ui+fr,corechart+fr.I.js"></script>
+	<link href="https://ajax.googleapis.com/ajax/static/modules/gviz/1.0/core/tooltip.css" rel="stylesheet" type="text/css">
+		
+		
+</head>
+<body ng-app="towtruck">
+
+
+
+<div class="container" id="accordion">
+
+
+	<div class="bs-component"  ng-controller="TowTrucControler as towtruckctrl">
+		
+		<center>
+		<table><tr><td><h1>Tow Truck</h1></td><td rowspan="2"><img src="pageResource?page=custompage_towtruck&location=img/towtruck.jpg" width="150" heigth="150" /></td></tr>
+			<tr><td style="font-size:0.8em"> <a href="" ng-click="towtruckctrl.showhistory( ! towtruckctrl.isshowhistory )">V1.1</a></td></tr>
+			<tr><td>
+				<div id="showHistory" ng-show="towtruckctrl.isshowhistory" style="border-width:2px;border-style:ridge;border-color:blue">
+					1.0 First version<br>
+					1.1 New request to detect the missing timer<br>
+				</div>
+			</td></tr>
+		</table>
+		</center>
+	
+		<div class="col-lg-12">
+	
+				<legend class="text-primary"><span class="glyphicon glyphicon-th"></span>Timers</legend>
+				<h3>Missing Timers</h3>
+			<div id="collectwait" style="background-color:green;color: #FFFFFF;">Please wait, collect in progress</div>
+				<button id="collectbtn" ng-click="towtruckctrl.getmissingtimer()" class="btn btn-info btn-xs">Collect informations</button>
+				{{towtruckctrl.timerstatus}}
+				
+				<!-- for the final page, remove this button 
+				<button id="collectbtn" ng-click="towtruckctrl.deletetimers()" class="btn btn-info btn-xs">Delete timers</button> 
+				-->
+				<div class="alert alert-danger" role="alert" ng-show="towtruckctrl.timererror.length > 0">{{towtruckctrl.timererror}}</div>
+				
+				<table class="table table-striped table-hover table-condensed" style="background-color:#C49E71">
+					<tr>
+						<th>Name</th>
+						<th>Statename</th>
+						<th>CaseId</th>
+						<th>Process Definition ID</th>
+						<th>Process Name</th>
+						<th>Process Version</th>
+					</tr>
+					<tr ng-repeat="timer in towtruckctrl.listtimers track by $index">
+						<td>{{timer.name}}</td>
+						<td>{{timer.statename}}</td>
+						<td>{{timer.processinstanceid}}</td>
+						<td>{{timer.processdefinitionid}}</td>
+						<td>{{timer.processdefinitionname}}</td>
+						<td>{{timer.processdefinitionversion}}</td>
+					</tr>
+				</table>
+				
+				<table border="2" ng-show="towtruckctrl.listtimers.length > 0 ">
+				<tr>
+				<td  style="border:10px">
+					<b>Statename = waiting</b> <br>
+					<b>Effect:</b> the quartz timer for a timer in waiting state will be recreated
+					<b>Implementation:</b> On each timer, the method timerEventHandlerStrategy.handleCatchEvent() is called<br>
+					Limitation:</b> this operation works only on "waiting" timer.<br>
+					
+				<!-- the create does not work </td><td  >
+					The time is create again in the quartz table, by a schedulerService.schedule()<br>
+					<button  ng-click="towtruckctrl.createmissingtimers('recreate')" class="btn btn-info btn-xs" >Create</button>
+					-->
+				</td><td>
+					<b>Statename = waiting</b> <br>
+					<b>Effect:</b> will skip the current waiting timer and go to the next step.<br>
+					<b>Implementation:</b> execute the task by the method processAPI.executeFlowNode()<br>					
+					<b>Limitation:</b> this operation works only on "waiting" timer.<br>
+				</td><td>
+				    <b>Statename = failed</b> <br>
+					<b>Effect:</b> the timer will be retried.
+					<b>Implementation:</b> apply on the task the method processAPI.retryTask().<br>
+					<b>Limitation:</b> this operation works only on "failed" timer.<br>
+				</td>
+				</tr><tr>
+				<td>
+					<div style="text-align:center;">
+						<button  ng-click="towtruckctrl.createmissingtimers('handle')" class="btn btn-info btn-xs" >Handle timer</button>
+					</div>
+				</td><td>					
+					<div style="text-align:center;">
+						<button  ng-click="towtruckctrl.createmissingtimers('executeTask')" class="btn btn-info btn-xs" >Execute</button>
+					</div>
+				</td><td>					
+					<div style="text-align:center;">
+						<button  ng-click="towtruckctrl.createmissingtimers('retrytask')" class="btn btn-info btn-xs" >Retry</button>
+					</div>
+				</td>
+				</tr>				
+				</table>
+				
+				<br>
+				{{towtruckctrl.missingtimerstatus}}
+				
+		</div>
+	</div>
+	
+		
+</div>
+
+
+
+<!-- Third party dependencies -->
+
+<script src="pageResource?page=custompage_towtruck&location=3rd-party/jquery.min.js"></script>
+
+<script src="pageResource?page=custompage_towtruck&location=3rd-party/angular.min.js"></script>
+
+<script src="pageResource?page=custompage_towtruck&location=3rd-party/angular-resource.min.js"></script>
+<script src="pageResource?page=custompage_towtruck&location=3rd-party/angular-cookies.min.js"></script>
+
+<script src="pageResource?page=custompage_towtruck&location=3rd-party/bootstrap/js/bootstrap.min.js"></script>
+<script src="pageResource?page=custompage_towtruck&location=3rd-party/angular-bootstrap-tpls.min.js"></script>
+<script src="pageResource?page=custompage_towtruck&location=3rd-party/angular-file-upload.js"></script> 
+<script src="pageResource?page=custompage_towtruck&location=3rd-party/ng-google-chart.js"></script> 
+
+
+<!-- Application dependencies -->
+<script src="pageResource?page=custompage_towtruck&location=twotruckmonitor.js"></script>
+
+</body>
+</html>		
