@@ -11,6 +11,7 @@ else
 	long instances = processAPI.getNumberOfProcessInstances();
 
 	result.append( "get ProcessAPI: ");
-       result.append( String.valueOf( instances ));
+	result.append( String.valueOf( instances ));
+	result.append(" : hello {{FirstName}} {{lastName}}");
 }
 return result.toString();
