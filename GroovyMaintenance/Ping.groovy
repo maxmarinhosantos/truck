@@ -12,6 +12,6 @@ else
 
 	result.append( "get ProcessAPI: ");
 	result.append( String.valueOf( instances ));
-	result.append(" : hello {{FirstName}} {{LastName}}");
+	result.append(" : hello {{FirstName;tips:Give the first name to retrieve it in the result}} {{LastName}}");
 }
 return result.toString();
