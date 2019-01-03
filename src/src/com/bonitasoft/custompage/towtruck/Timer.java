@@ -93,41 +93,8 @@ public class Timer {
 										+ " left join process_definition on (process_instance.processdefinitionid = process_definition.processid)" //
 										+ " left join process_definition as rootprocess_definition on (rootprocess_instance.processdefinitionid = rootprocess_definition.processid)" //
 
-										//			+ " where CAST( flownode_instance.id AS text) not in (select SUBSTRING(job_name, 10, 9) from qrtz_triggers) and kind = 'intermediateCatchEvent' and (statename ='waiting' or statename='failed')";
-										
-										+ " where" 
-										// BS-13384
-										+ "( "
-										+    "CAST(flownode_instance.id AS text)" 
-										+    "not in ("
-										+       " select SUBSTRING(job_name, 10, 9)" 
-										+       " from qrtz_triggers where  job_name like '%Timer_Ev_%'"
-										+          " )"
-										+    " and kind = 'intermediateCatchEvent' and statename ='failed'"
-										+ ")"
-										// BS-13386
-										+ "OR" 
-										+ "("
-										+   " CAST(flownode_instance.id AS text)" 
-										+   " in ("
-										+    " select SUBSTRING(job_name, 10, 9)" 
-										+    " from qrtz_triggers where  job_name like '%Timer_Ev_%' and  (trigger_state='complete' or trigger_state='COMPLETE')"
-										+      " )"
-										+   " and kind = 'intermediateCatchEvent' and statename ='waiting'"
-										+ ")"
+										+ " where CAST( flownode_instance.id AS text) not in (select SUBSTRING(job_name, 10, 9) from qrtz_triggers) and kind = 'intermediateCatchEvent' and (statename ='waiting' or statename='failed')";
 
-										// 	BS-13386
-										+ "OR"
-										+ "("
-										+   " CAST(flownode_instance.id AS text)" 
-										+   " not in ("
-										+     " select SUBSTRING(job_name, 10, 9)" 
-										+     "	from qrtz_triggers where  job_name like '%Timer_Ev_%'"
-										+          "	)"
-										+ "	and kind = 'intermediateCatchEvent' and statename ='waiting'"
-										+ ");"
-
-		
 						logger.info("Search process with request[" + sqlRequest + "]");
 						Context ctx = new InitialContext();
 						DataSource ds = (DataSource) ctx.lookup("java:/comp/env/bonitaSequenceManagerDS");
@@ -277,7 +244,7 @@ public class Timer {
 										result.put(cstResultListTimers, missingTimers.get(cstResultListTimers));
 										result.put(cstResultTimerStatus, "Found " + nbTimersToCreate + " missing timer, create: " + missingTimers.get(cstResultTimerStatus));
 										result.put(cstResultTimerStatus, resultCommandHashmap.get(cstResultTimerStatus));
-										result.put(cstResultTimerError, errorForJson((String) resultCommandHashmap.get(cstResultTimerError)));
+										result.put(cstResultTimerError, errorForJson( (String) resultCommandHashmap.get(cstResultTimerError)) );
 								}
 						}
 				} catch (Exception e) {
@@ -303,7 +270,7 @@ public class Timer {
 		 * @param processAPI
 		 * @return
 		 */
-		public static HashMap<String, Object> deleteTimers(ProcessAPI processAPI) {
+		public static HashMap<String, Object> deleteTimers(ProcessAPI processAPI ) {
 				HashMap<String, Object> result = new HashMap<String, Object>();
 
 				Context ctx = null;
@@ -333,8 +300,7 @@ public class Timer {
 						rs.close();
 
 						// # get triggerNamer from the flownodeinstandeid
-						// select trigger_name from qrtz_triggers where job_name like
-						// '%9800004%';
+						// select trigger_name from qrtz_triggers where job_name like '%9800004%';
 						sqlRequest = "select trigger_name, job_name from qrtz_triggers where " + sqlRequestWhere;
 						String sqlRequestWhereTriggerName = "1=0";
 						String sqlRequestWhereJobTriggerName = "1=0";
@@ -399,6 +365,7 @@ public class Timer {
 				ArrayList<HashMap<String, Object>> listMissingTimer = (ArrayList<HashMap<String, Object>>) missingTimers.get(cstResultListTimers);
 				result.put(cstResultListTimers, listMissingTimer);
 
+				
 				return result;
 		}
 
@@ -556,9 +523,9 @@ public class Timer {
 				}
 				return listTimers;
 		}
-
-		private static String errorForJson(String error) {
-				if (error == null)
+		private static String errorForJson( String error )
+		{
+				if (error==null)
 						return null;
 				error = error.replaceAll("\\[", "");
 				error = error.replaceAll("\\]", "");
@@ -569,10 +536,12 @@ public class Timer {
 				error = error.replaceAll("\\)", " ");
 				error = error.replaceAll(":", " ");
 				error = error.replaceAll("\\|", " ");
-				if (error.length() > 30) {
+				if (error.length()>30)
+				{
 						// error = error.substring(0,30);
 				}
-
+				
+				
 				return error;
 		}
 

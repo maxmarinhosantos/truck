@@ -6,7 +6,7 @@
 (function() {
 
 
-var appCommand = angular.module('towtruck', ['googlechart', 'ui.bootstrap']);
+var appCommand = angular.module('towtruck', ['ui.bootstrap','ngSanitize']);
 
 
 
@@ -20,12 +20,12 @@ var appCommand = angular.module('towtruck', ['googlechart', 'ui.bootstrap']);
 // --------------------------------------------------------------------------
 
 // Ping the server
-appCommand.controller('TowTrucControler',
-	function ( $http, $scope ) {
+appCommand.controller('TowTruckControler',
+	function ( $http, $scope, $sce ) {
 	this.isshowhistory=false;
 	this.pingdate='';
 	this.pinginfo='';
-	$('#collectwait').hide();
+	this.inprogress=false;
 
 	
 	this.showhistory = function( show )
@@ -33,57 +33,54 @@ appCommand.controller('TowTrucControler',
 	   this.isshowhistory = show;
 	}
 
+	
+	// ------------------------------------------------------------------------------
+	//    Timer
+	// ------------------------------------------------------------------------------
 	this.createmissingtimers = function( typeCreation)
 	{
 
-		$('#createbtn').hide();
-		$('#collectwait').show();
-		
+			
 		var self=this;
-
-		$http.get( '?page=custompage_towtruck&action=createmissingtimers&typecreation='+typeCreation )
+		self.inprogress=true;
+		
+		$http.get( '?page=custompage_towtruck&action=createmissingtimers&typecreation='+typeCreation+'&t='+Date.now() )
 				.success( function ( jsonResult ) {
 						console.log("history",jsonResult);
 						self.listtimers 		= jsonResult.listtimers;
 						self.missingtimerstatus	= jsonResult.missingtimerstatus;
 						self.timererror 		= jsonResult.timererror;
-						$('#createbtn').show();
-						$('#collectwait').hide();
-				})
+						self.inprogress			= false;
+					})
 				.error( function() {
 					
 						self.timerstatus 		= jsonResult.timerstatus;
 						self.timererror 		= jsonResult.timererror;
-						
-						$('#createbtn').show();
-						$('#collectwait').hide();
+						self.inprogress			= false;
 					});
 				
 	}; 
 	
 	this.getmissingtimer = function()
 	{
-		$('#collectbtn').hide();
-		$('#collectwait').show();
-		this.pinginfo="Hello";
 		
 		var self=this;
+		self.inprogress=true;
 
-		$http.get( '?page=custompage_towtruck&action=getmissingtimer' )
+		$http.get( '?page=custompage_towtruck&action=getmissingtimer'+'&t='+Date.now() )
 				.success( function ( jsonResult ) {
 						console.log("history",jsonResult);
 						self.listtimers 		= jsonResult.listtimers;
 						self.timerstatus 		= jsonResult.timerstatus;
 						self.timererror 		= jsonResult.timererror;
 								
-						$('#collectbtn').show();
-						$('#collectwait').hide();
+						self.inprogress=false;
+
 				})
 				.error( function() {
 					alert('an error occured');
 						self.timererror 		= jsonResult.timererror;
-						$('#collectbtn').show();
-						$('#collectwait').hide();
+						self.inprogress=false;
 					});
 				
 	}; // end getmissingtimer
@@ -91,31 +88,146 @@ appCommand.controller('TowTrucControler',
 	
 	this.deletetimers = function()
 	{
-		$('#collectbtn').hide();
-		$('#collectwait').show();
 		
 		var self=this;
+		self.inprogress=true;
 
-		$http.get( '?page=custompage_towtruck&action=deletetimers' )
+		$http.get( '?page=custompage_towtruck&action=deletetimers'+'&t='+Date.now() )
 				.success( function ( jsonResult ) {
 						console.log("history",jsonResult);
 						self.listtimers 		= jsonResult.listtimers;
 						self.timerstatus 		= jsonResult.timerstatus;
 						self.timererror 		= jsonResult.timererror;
 								
-						$('#collectbtn').show();
-						$('#collectwait').hide();
+						self.inprogress=false;
 				})
 				.error( function() {
 					alert('an error occured');
 						self.timerstatus 		= jsonResult.timerstatus;
 						self.timererror 		= jsonResult.timererror;
-						$('#collectbtn').show();
-						$('#collectwait').hide();
+						self.inprogress=false;
 					});
 				
 	}; // end deletetimer
 
+	
+	// ------------------------------------------------------------------------------
+	//    Groovy
+	// ------------------------------------------------------------------------------
+
+	this.groovy = { "type": '', "code":"Ping", "src": 'return "Hello Word";' };
+	this.listUrlCall=[];
+	this.groovyload = function() 
+	{
+		var self=this;
+		self.inprogress	=true;
+		self.groovy.result="";
+		self.groovy.type			= 'code';
+		
+		$http.get( '?page=custompage_towtruck&action=groovyload&code='+ this.groovy.code+'&t='+Date.now() )
+		.success( function ( jsonResult ) {
+				console.log("history",jsonResult);
+				self.groovy.loadstatus 	= "Script loaded";
+				
+				self.groovy.parameters 		= jsonResult.placeholder;
+				self.groovy.listeventsload	= jsonResult.listevents;
+				self.inprogress				= false;
+		})
+		.error( function() {
+			alert('an error occured');
+				this.groovy.loadstatus="Error at loading."
+				self.inprogress=false;
+			});
+	}
+	
+	this.groovyexecute = function()
+	{
+		var self=this;
+		self.inprogress=true;
+		self.groovy.result="";
+		self.groovy.listeventsload="";
+		self.groovy.listevents='';
+		
+		var param = {'type': self.groovy.type};
+		
+		if (self.groovy.type=='code')
+		{
+			param.placeholder = self.groovy.parameters;
+			param.code = self.groovy.code;
+		}
+		else
+			param.src = self.groovy.src;
+		
+		// groovy page does not manage the POST, and the groovy may be very big : so, let's trunk it
+		this.listUrlCall=[];
+		// this.listUrlCall.push( "action=collect_reset");
+		
+		// prepare the string
+
+		var json = angular.toJson( param, false);
+
+		// split the string by packet of 5000 
+		while (json.length>0)
+		{
+			var jsonFirst = encodeURI( json.substring(0,5000));
+			json =json.substring(5000);
+			var action="";
+			if (json.length==0)
+				action="groovyexecute";
+			else
+				action="collect_add";
+			this.listUrlCall.push( "action="+action+"&paramjson="+jsonFirst);
+
+		}
+		var self=this;
+		// self.listUrlCall.push( "action=groovyexecute");
+		
+		
+		self.listUrlIndex=0;
+		self.executeListUrl( self ) // , self.listUrlCall, self.listUrlIndex );
+		
+	
+	}
+	
+	
+	// ------------------------------------------------------------------------------------------------------
+	// List Execution
+	
+	this.executeListUrl = function( self ) // , listUrlCall, listUrlIndex )
+	{
+		console.log(" Call "+self.listUrlIndex+" : "+self.listUrlCall[ self.listUrlIndex ]);
+		self.listUrlPercent= Math.round( (100 *  self.listUrlIndex) / self.listUrlCall.length);
+		
+		$http.get( '?page=custompage_towtruck&'+self.listUrlCall[ self.listUrlIndex ]+'&t='+Date.now() )
+			.success( function ( jsonResult ) {
+				// console.log("Correct, advance one more",
+				// angular.toJson(jsonResult));
+				self.listUrlIndex = self.listUrlIndex+1;
+				if (self.listUrlIndex  < self.listUrlCall.length )
+					self.executeListUrl( self ) // , self.listUrlCall,
+												// self.listUrlIndex);
+				else
+				{
+					console.log("Finish", angular.toJson(jsonResult));
+					self.inprogress=false;
+					self.listUrlPercent= 100; 
+					self.groovy.result		= jsonResult.result;
+					self.groovy.listevents	= jsonResult.listevents;
+					
+					self.groovy.exception   = jsonResult.exception;
+				}
+			})
+			.error( function() {
+				self.inprogress=false;
+
+				// alert('an error occure');
+				});	
+		};
+	
+		
+		this.getListEvents = function ( listevents ) {
+			return $sce.trustAsHtml(  listevents );
+		}
 
 });
 

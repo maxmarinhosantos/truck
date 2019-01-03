@@ -22,19 +22,24 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>custompage/7.2.0/Index.groovy</name>
+			<name>custompage/190102 7.7.4/Actions.groovy</name>
 			<type>1</type>
-			<location>C:/atelier/BPM-SP-7.2.0/workspace/AI Training/bonita_home/client/tenants/1/work/pages/custompage_towtruck/Index.groovy</location>
+			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.7.4_2/workspace/tomcat/server/temp/bonita_portal_26568@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/Actions.groovy</locationURI>
 		</link>
 		<link>
-			<name>custompage/7.2.0/index.html</name>
+			<name>custompage/190102 7.7.4/Index.groovy</name>
 			<type>1</type>
-			<location>C:/atelier/BPM-SP-7.2.0/workspace/AI Training/bonita_home/client/tenants/1/work/pages/custompage_towtruck/index.html</location>
+			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.7.4_2/workspace/tomcat/server/temp/bonita_portal_26568@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/Index.groovy</locationURI>
 		</link>
 		<link>
-			<name>custompage/7.2.0/twotruckmonitor.js</name>
+			<name>custompage/190102 7.7.4/index.html</name>
 			<type>1</type>
-			<location>C:/atelier/BPM-SP-7.2.0/workspace/AI Training/bonita_home/client/tenants/1/work/pages/custompage_towtruck/resources/twotruckmonitor.js</location>
+			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.7.4_2/workspace/tomcat/server/temp/bonita_portal_26568@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/index.html</locationURI>
+		</link>
+		<link>
+			<name>custompage/190102 7.7.4/twotruckmonitor.js</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.7.4_2/workspace/tomcat/server/temp/bonita_portal_26568@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/resources/twotruckmonitor.js</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

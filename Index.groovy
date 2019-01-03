@@ -1,3 +1,6 @@
+import java.lang.management.RuntimeMXBean;
+import java.lang.management.ManagementFactory;
+
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import java.text.SimpleDateFormat;
@@ -24,7 +27,7 @@ import javax.sql.DataSource;
 import java.sql.DatabaseMetaData;
 
 import org.apache.commons.lang3.StringEscapeUtils
-
+ 
 import org.bonitasoft.engine.identity.User;
 import org.bonitasoft.console.common.server.page.PageContext
 import org.bonitasoft.console.common.server.page.PageController
@@ -38,227 +41,159 @@ import org.bonitasoft.engine.exception.UnknownAPITypeException;
 
 import com.bonitasoft.engine.api.TenantAPIAccessor;
 import org.bonitasoft.engine.session.APISession;
-import org.bonitasoft.engine.api.CommandAPI;
-import org.bonitasoft.engine.api.ProcessAPI;
-import org.bonitasoft.engine.api.IdentityAPI;
-import com.bonitasoft.engine.api.PlatformMonitoringAPI;
-import org.bonitasoft.engine.search.SearchOptionsBuilder;
-import org.bonitasoft.engine.search.SearchResult;
-import org.bonitasoft.engine.bpm.flownode.ActivityInstanceSearchDescriptor;
-import org.bonitasoft.engine.bpm.flownode.ArchivedActivityInstanceSearchDescriptor;
-import org.bonitasoft.engine.bpm.flownode.ActivityInstance;
-import org.bonitasoft.engine.bpm.flownode.ArchivedFlowNodeInstance;
-import org.bonitasoft.engine.bpm.flownode.ArchivedActivityInstance;
-import org.bonitasoft.engine.search.SearchOptions;
-import org.bonitasoft.engine.search.SearchResult;
 
-import org.bonitasoft.engine.command.CommandDescriptor;
-import org.bonitasoft.engine.command.CommandCriterion;
-import org.bonitasoft.engine.bpm.flownode.ActivityInstance;
-import org.bonitasoft.engine.bpm.process.ProcessDeploymentInfo;
-	
-import com.bonitasoft.custompage.towtruck.Timer.MethodResetTimer;
-	
+
+
 public class Index implements PageController {
 
-	@Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response, PageResourceProvider pageResourceProvider, PageContext pageContext) {
-	
-		Logger logger= Logger.getLogger("org.bonitasoft");
-		
-		HashMap<String,Object> result = new HashMap<String,Object> ();
+  private static Logger loggerCustomPage= Logger.getLogger("org.bonitasoft.custompage.towtruck.groovy");
+  
+  
+  public static class ActionAnswer
+  {
+    /*
+     * if true, the answer is managed by the action (else, it should be an HTML call)
+     */
+    public boolean isManaged=false;
+    /*
+     * if true, the response is in responseMap, and a JSON is necessary
+     */
+    public boolean isResponseMap=true;
+    /*
+     * the response under a Map 
+     */
+    public Map<String,Object> responseMap =new HashMap<String,Object>();
+    public void setResponse(Map<String,Object> response )
+    {
+      responseMap = response;
+      isResponseMap=true;
+    }
+    
+  }
+  @Override
+  public void doGet(HttpServletRequest request, HttpServletResponse response, PageResourceProvider pageResourceProvider, PageContext pageContext) {
+    
+    try {
+      String requestParamJson= request.getParameter("paramjson");
+      String requestParamJsonSt = (requestParamJson==null ? null : java.net.URLDecoder.decode(requestParamJson, "UTF-8"));
 
-		response.setCharacterEncoding("UTF-8");
-		PrintWriter out = response.getWriter()
-		
-		try {
-			def String indexContent;
-			pageResourceProvider.getResourceAsStream("Index.groovy").withStream { InputStream s-> indexContent = s.getText() };
+      
+      Index.ActionAnswer actionAnswer = Actions.doAction( request, requestParamJsonSt,  response, pageResourceProvider, pageContext );
+      if (! actionAnswer.isManaged)
+      {
+        loggerCustomPage.info("#### CustomPage:Groovy NoAction, return index.html" );
+        runTheBonitaIndexDoGet( request, response,pageResourceProvider,pageContext);
+        return;
+      }
+      loggerCustomPage.info("#### CustomPage:Groovy , ResponseMap="+actionAnswer.responseMap.size() );
+      
+      if (actionAnswer.responseMap.size()>0)
+      {
+        response.setCharacterEncoding("UTF-8");
+        response.addHeader("content-type", "application/json");
+        
+        PrintWriter out = response.getWriter()
+        String jsonSt = JSONValue.toJSONString( actionAnswer.responseMap );
+        out.write( jsonSt );
+        loggerCustomPage.info("#### ##############################CustomPage: return json["+jsonSt+"]" );
+        out.flush();
+        out.close();
+        return;
+      }
+      // assuming the DoAction did the job (export a ZIP file for example)
+      return;
+    } catch (Exception e) {
+      StringWriter sw = new StringWriter();
+      e.printStackTrace(new PrintWriter(sw));
+      String exceptionDetails = sw.toString();
+      loggerCustomPage.severe("#### towtruckCustomPage:Groovy Exception ["+e.toString()+"] at "+exceptionDetails);
+    }
+  }
+  
+  /** -------------------------------------------------------------------------
+   *
+   *getIntegerParameter
+   * 
+   */
+   public static getIntegerParameter(HttpServletRequest request, String paramName, Integer defaultValue)
+  {
+    String valueParamSt = request.getParameter(paramName);
+    if (valueParamSt==null  || valueParamSt.length()==0)
+    {
+      return defaultValue;
+    }
+    try
+    {
+      return Integer.valueOf( valueParamSt );
+    }
+    catch( Exception e)
+    {
+      StringWriter sw = new StringWriter();
+      e.printStackTrace(new PrintWriter(sw));
+      String exceptionDetails = sw.toString();
+      
+      loggerCustomPage.severe("#### LongBoardCustomPage:Groovy LongBoard: getinteger : Exception "+e.toString()+" on  ["+valueParamSt+"] at "+exceptionDetails );
+      return defaultValue;
+    }
+  }
+  /** -------------------------------------------------------------------------
+   *
+   *getBooleanParameter
+   * 
+   */
+  public static Boolean getBooleanParameter(HttpServletRequest request, String paramName, Boolean defaultValue)
+  {
+    String valueParamSt = request.getParameter(paramName);
+    if (valueParamSt==null  || valueParamSt.length()==0)
+    {
+      return defaultValue;
+    }
+    try
+    {
+      return  Boolean.valueOf( valueParamSt );
+    }
+    catch( Exception e)
+    {
+      StringWriter sw = new StringWriter();
+      e.printStackTrace(new PrintWriter(sw));
+      String exceptionDetails = sw.toString();
+      
+      loggerCustomPage.severe("#### LongBoardCustomPage:Groovy LongBoard: getBoolean : Exception "+e.toString()+" on  ["+valueParamSt+"] at "+exceptionDetails );
+      return defaultValue;
+    }
+  }
+  
+  /** -------------------------------------------------------------------------
+   *
+   *runTheBonitaIndexDoGet
+   * 
+   */
+  private void runTheBonitaIndexDoGet(HttpServletRequest request, HttpServletResponse response, PageResourceProvider pageResourceProvider, PageContext pageContext) {
+    try {
+        def String indexContent;
+        pageResourceProvider.getResourceAsStream("index.html").withStream { InputStream s->
+            indexContent = s.getText()
+        }
+        
+        File pageDirectory = pageResourceProvider.getPageDirectory();
+                 
+        // def String pageResource="pageResource?&page="+ request.getParameter("page")+"&location=";
+        // indexContent= indexContent.replace("@_USER_LOCALE_@", request.getParameter("locale"));
+        // indexContent= indexContent.replace("@_PAGE_RESOURCE_@", pageResource);
+        indexContent= indexContent.replace("@_CURRENTTIMEMILIS_@", String.valueOf(System.currentTimeMillis()));
+              indexContent= indexContent.replace("@_PAGEDIRECTORY_@", pageDirectory.getAbsolutePath()) ;
+                 
+              
+        response.setCharacterEncoding("UTF-8");
+        response.addHeader("content-type", "text/html");
 
-			String action=request.getParameter("action");
-			logger.info("###################################### action is["+action+"] !");
-			if (action==null || action.length()==0 )
-			{
-				logger.severe("###################################### RUN Default !");
-				
-				runTheBonitaIndexDoGet( request, response,pageResourceProvider,pageContext);
-				return;
-			}
-			
-			APISession session = pageContext.getApiSession()
-			ProcessAPI processAPI = TenantAPIAccessor.getProcessAPI(session);
-			CommandAPI commandAPI = TenantAPIAccessor.getCommandAPI(session);
-			IdentityAPI identityApi = TenantAPIAccessor.getIdentityAPI(session);
-			
-			if ("getmissingtimer".equals(action))
-			{
-				 result=com.bonitasoft.custompage.towtruck.Timer.getMissingTimers(false, processAPI );
-			}
-			else if ("createmissingtimers".equals(action))
-			{
-				String typecreation=request.getParameter("typecreation");
-				MethodResetTimer methodResetTimer = null;
-				if ("handle".equals(typecreation))
-					methodResetTimer = MethodResetTimer.Handle;
-				else if ("recreate".equals(typecreation))
-					methodResetTimer = MethodResetTimer.Recreate;
-				else if ("retrytask".equals(typecreation))
-					methodResetTimer = MethodResetTimer.RetryTask;
-				else if ("executeTask".equals(typecreation))
-					methodResetTimer = MethodResetTimer.ExecuteTask;
-					
-				InputStream is = pageResourceProvider.getResourceAsStream("lib/CustomPageTowTruck-1.0.1.jar");
-				result=com.bonitasoft.custompage.towtruck.Timer.createMissingTimers(methodResetTimer, is,  processAPI, commandAPI,null );
-			}
+        PrintWriter out = response.getWriter();
+        out.print(indexContent);
+        out.flush();
+        out.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    }
 
-			else if ("deletetimers".equals(action))
-			{
-				result=com.bonitasoft.custompage.towtruck.Timer.deleteTimers(processAPI);
-			}
-			else 
-			{
-				result.put("timerstatus", "Unknow command ["+action+"]");
-			}
-				
-			
-		} catch (Exception e) {
-			StringWriter sw = new StringWriter();
-			e.printStackTrace(new PrintWriter(sw));
-			String exceptionDetails = sw.toString();
-			logger.severe("TowTruckGroovy: Exception ["+e.toString()+"] at "+exceptionDetails);
-				result.put("timerstatus", "Unknow command ["+action+"]");
-		}
-		String jsonDetailsSt = JSONValue.toJSONString( result );
-		logger.info("TowTruckGroovy:Return ["+jsonDetailsSt+"]");
-			
-		out.write( jsonDetailsSt );
-		out.flush();
-		out.close();				
-		return;				
-
-	}
-
-	
-	/** -------------------------------------------------------------------------
-	 *
-	 *runTheBonitaIndexDoGet
-	 * 
-	 */
-	private void runTheBonitaIndexDoGet(HttpServletRequest request, HttpServletResponse response, PageResourceProvider pageResourceProvider, PageContext pageContext) {
-				try {
-						def String indexContent;
-						pageResourceProvider.getResourceAsStream("index.html").withStream { InputStream s->
-								indexContent = s.getText()
-						}
-						
-						def String pageResource="pageResource?&page="+ request.getParameter("page")+"&location=";
-
-                        // to use in a Living application						
-						// indexContent= indexContent.replace("@_USER_LOCALE_@", request.getParameter("locale"));
-						// indexContent= indexContent.replace("@_PAGE_RESOURCE_@", pageResource);
-						
-						response.setCharacterEncoding("UTF-8");
-						PrintWriter out = response.getWriter();
-						out.print(indexContent);
-						out.flush();
-						out.close();
-				} catch (Exception e) {
-						e.printStackTrace();
-				}
-		}
-		
-		/**
-		to create a simple chart
-		*/
-		public static class ActivityTimeLine
-		{
-				public String activityName;
-				public Date dateBegin;
-				public Date dateEnd;
-				
-				public static ActivityTimeLine getActivityTimeLine(String activityName, int timeBegin, int timeEnd)
-				{
-					Calendar calBegin = Calendar.getInstance();
-					calBegin.set(Calendar.HOUR_OF_DAY , timeBegin);
-					Calendar calEnd = Calendar.getInstance();
-					calEnd.set(Calendar.HOUR_OF_DAY , timeEnd);
-					
-						ActivityTimeLine oneSample = new ActivityTimeLine();
-						oneSample.activityName = activityName;
-						oneSample.dateBegin		= calBegin.getTime();
-						oneSample.dateEnd 		= calEnd.getTime();
-						
-						return oneSample;
-				}
-				public long getDateLong()
-				{ return dateBegin == null ? 0 : dateBegin.getTime(); }
-		}
-		
-		
-		/** create a simple chart 
-		*/
-		public static String getChartTimeLine(String title, List<ActivityTimeLine> listSamples){
-				Logger logger = Logger.getLogger("org.bonitasoft");
-				
-				/** structure 
-				 * "rows": [
-           {
-        		 c: [
-        		      { "v": "January" },"
-                  { "v": 19,"f": "42 items" },
-                  { "v": 12,"f": "Ony 12 items" },
-                ]
-           },
-           {
-        		 c: [
-        		      { "v": "January" },"
-                  { "v": 19,"f": "42 items" },
-                  { "v": 12,"f": "Ony 12 items" },
-                ]
-           },
-
-				 */
-				String resultValue="";
-				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy,MM,dd,HH,mm,ss,SSS");
-				
-				for (int i=0;i<listSamples.size();i++)
-				{
-					logger.info("sample [i] : "+listSamples.get( i ).activityName+"] dateBegin["+simpleDateFormat.format( listSamples.get( i ).dateBegin)+"] dateEnd["+simpleDateFormat.format( listSamples.get( i ).dateEnd) +"]");
-						if (listSamples.get( i ).dateBegin!=null &&  listSamples.get( i ).dateEnd != null)
-								resultValue+= "{ \"c\": [ { \"v\": \""+listSamples.get( i ).activityName+"\" }," ;
-								resultValue+= " { \"v\": \""+listSamples.get( i ).activityName +"\" }, " ;
-								resultValue+= " { \"v\": \"Date("+ simpleDateFormat.format( listSamples.get( i ).dateBegin) +")\" }, " ;
-								resultValue+= " { \"v\": \"Date("+ simpleDateFormat.format( listSamples.get( i ).dateEnd) +")\" } " ;
-								resultValue+= "] },";
-				}
-				if (resultValue.length()>0)
-						resultValue = resultValue.substring(0,resultValue.length()-1);
-				
-				String resultLabel = "{ \"type\": \"string\", \"id\": \"Role\" },{ \"type\": \"string\", \"id\": \"Name\"},{ \"type\": \"datetime\", \"id\": \"Start\"},{ \"type\": \"datetime\", \"id\": \"End\"}";
-				
-				String valueChart = "	{"
-					   valueChart += "\"type\": \"Timeline\", ";
-					  valueChart += "\"displayed\": true, ";
-					  valueChart += "\"data\": {";
-					  valueChart +=   "\"cols\": ["+resultLabel+"], ";
-					  valueChart +=   "\"rows\": ["+resultValue+"] ";
-					  /*
-					  +   "\"options\": { "
-					  +         "\"bars\": \"horizontal\","
-					  +         "\"title\": \""+title+"\", \"fill\": 20, \"displayExactValues\": true,"
-					  +         "\"vAxis\": { \"title\": \"ms\", \"gridlines\": { \"count\": 100 } }"
-					  */
-					  valueChart +=  "}";
-					  valueChart +="}";
-// 				+"\"isStacked\": \"true\","
- 	          
-//		    +"\"displayExactValues\": true,"
-//		    
-//		    +"\"hAxis\": { \"title\": \"Date\" }"
-//		    +"},"
-				logger.info("Value1 >"+valueChart+"<");
-
-				
-				return valueChart;		
-		}	
 }
