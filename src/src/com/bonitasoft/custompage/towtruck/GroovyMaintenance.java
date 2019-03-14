@@ -12,12 +12,15 @@ import javax.servlet.http.HttpSession;
 import org.bonitasoft.log.event.BEvent;
 import org.bonitasoft.log.event.BEvent.Level;
 import org.bonitasoft.log.event.BEventFactory;
-import org.bonitasoft.store.ArtefactItem;
+import org.bonitasoft.store.BonitaStore;
+import org.bonitasoft.store.BonitaStore.DetectionParameters;
 import org.bonitasoft.store.BonitaStore.UrlToDownload;
 import org.bonitasoft.store.BonitaStoreAPI;
 import org.bonitasoft.store.BonitaStoreGit;
 import org.bonitasoft.store.StoreResult;
-import org.bonitasoft.store.toolbox.LogBox;
+import org.bonitasoft.store.artefact.Artefact;
+import org.bonitasoft.store.artefact.Artefact.TypeArtefact;
+import org.bonitasoft.store.toolbox.LoggerStore;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
 import groovy.lang.Binding;
@@ -27,7 +30,7 @@ import groovy.lang.GroovyShell;
 public class GroovyMaintenance {
   
   
-  private final static BEvent NO_CODE_FOUND = new BEvent(GroovyMaintenance.class.getName(), 1, Level.APPLICATIONERROR, "This Groovy does code exist", 
+  private final static BEvent NO_CODE_FOUND = new BEvent(GroovyMaintenance.class.getName(), 1, Level.APPLICATIONERROR, "This Groovy does code does not exists", 
       "No groovy is found with this code.",
       "Nothing to propose",
       "Check the code (and the content of the git repository)");
@@ -41,11 +44,9 @@ public class GroovyMaintenance {
       "No groovy script is executed",
       "Check the session : you may be disconnected");
   
-  private final static BEvent GROOVY_DOWNLOADED = new BEvent(GroovyMaintenance.class.getName(), 4, Level.SUCCESS, "Groovy Downloaded", 
-      "The groovy is downloaded with success" );
+  private final static BEvent GROOVY_DOWNLOADED = BEvent.getInstanceShortSuccess(GroovyMaintenance.class.getName(), 4,"Groovy Downloaded" );
 
-  private final static BEvent GROOVY_EXECUTED = new BEvent(GroovyMaintenance.class.getName(), 5, Level.SUCCESS, "Groovy executed with success", 
-      "The groovy is executed with success" );
+  private final static BEvent GROOVY_EXECUTED = BEvent.getInstanceShortSuccess(GroovyMaintenance.class.getName(), 5, "Groovy executed with success");
   
   
   private final static BEvent GROOVY_EXECUTION_FAILED = new BEvent(GroovyMaintenance.class.getName(), 6, Level.APPLICATIONERROR, "Groovy executioopn failed", 
@@ -60,12 +61,16 @@ public class GroovyMaintenance {
     Map<String,Object> result = new HashMap<String,Object> ();
     List<BEvent> listEvents = new ArrayList<BEvent>();
     
-    LogBox logBox = new LogBox();
+    LoggerStore logBox = new LoggerStore();
+    
     BonitaStoreGit bonitaStore = BonitaStoreAPI.getGitStore( BonitaStoreAPI.CommunityGithubUserName, BonitaStoreAPI.CommunityGithubPassword, "https://api.github.com/repos/Bonitasoft-Community/page_towntruck");
     bonitaStore.setSpecificRepository("/contents/GroovyMaintenance");
-    StoreResult storeResult = bonitaStore.getListFiles(Arrays.asList(ArtefactItem.TypeArtefacts.GROOVY), false, logBox);
+    DetectionParameters detectionParameters = new BonitaStore.DetectionParameters();
+    detectionParameters.listTypeArtefact = Arrays.asList(TypeArtefact.GROOVY);
+    
+    StoreResult storeResult = bonitaStore.getListArtefacts(detectionParameters, logBox);
     listEvents.addAll( storeResult.getEvents());
-    ArtefactItem groovyArtefact =storeResult.getArtefactByName(groovyCode+".groovy");  
+    Artefact groovyArtefact = storeResult.getArtefactByName(groovyCode+".groovy");  
     if (groovyArtefact == null)
     {
       listEvents.add( new BEvent( NO_CODE_FOUND, "Code["+groovyCode+"]"));
@@ -74,7 +79,8 @@ public class GroovyMaintenance {
     {
       List<Object> listPlaceHolder = new ArrayList<Object>();
       // load it
-      storeResult=bonitaStore.downloadOneArtefact(groovyArtefact, UrlToDownload.URLDOWNLOAD, false, logBox);
+      storeResult = bonitaStore.downloadArtefact(groovyArtefact, UrlToDownload.URLDOWNLOAD, logBox);
+      
       listEvents.addAll( storeResult.getEvents());
       if (! BEventFactory.isError( listEvents) )
       {
@@ -168,7 +174,11 @@ public class GroovyMaintenance {
           // do not use the replaceAll : the place holder can be interpreted as a expression
           while (groovySource.contains("{{"+placeHolder.get("key")+"}}") && loop < 100)
           {
-            groovySource = groovySource.replace("{{"+placeHolder.get("key")+"}}", placeHolder.get("value"));
+            String valueToReplace=placeHolder.get("value");
+            if (valueToReplace==null)
+              valueToReplace="";
+           
+            groovySource = groovySource.replace("{{"+placeHolder.get("key")+"}}", valueToReplace);
             loop++;
           }
         }
@@ -185,7 +195,7 @@ public class GroovyMaintenance {
         if (resultExecution==null)
           resultExecution="Script was executed with success, but do not return any result.";
         result.put("result", resultExecution);
-        listEvents.add( new BEvent( GROOVY_EXECUTED, "in "+(timeEnd-timeBegin)+" ms"));
+        listEvents.add( new BEvent( GROOVY_EXECUTED, "Executed in "+(timeEnd-timeBegin)+" ms"));
       }
       catch(Exception e)
       {
