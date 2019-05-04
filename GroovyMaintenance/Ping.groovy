@@ -1,5 +1,13 @@
 import org.bonitasoft.engine.api.ProcessAPI;
 
+/* ****************************************************************** */
+/*                                                                    */
+/* Name: Ping                                                         */
+/*                                                                    */
+/* Description: just get a parameters, then print it                  */
+/*                                                                    */
+/* ****************************************************************** */
+
 StringBuffer result= new StringBuffer(" start ");
 ProcessAPI processAPI = apiAccessor.getProcessAPI();
 // ProcessAPI processAPI = apiClient.getProcessAPI();

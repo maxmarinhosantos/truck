@@ -49,93 +49,189 @@
 
 
 
-
-<div class="bs-component"  ng-controller="TowTruckControler as towtruckctrl">
-	
+<div class="col-lg-12" class="bs-component"  ng-controller="TowTruckControler as ctrl">
 	<center>
 	<table><tr>
 			<td><h1>Tow Truck</h1></td>
 			<td rowspan="2"><img src="img/towtruck.jpg?" width="150" heigth="150" /></td>
 		</tr>
-		<tr><td style="font-size:0.8em"> <a href="" ng-click="towtruckctrl.showhistory( ! towtruckctrl.isshowhistory )">V1.2</a></td></tr>
+		<tr><td style="font-size:0.8em"> <a href="" ng-click="towtruckctrl.showhistory( ! towtruckctrl.isshowhistory )">V2.1</a></td></tr>
 		<tr><td>
 			<div id="showHistory" ng-show="towtruckctrl.isshowhistory" style="border-width:2px;border-style:ridge;border-color:blue">
 				1.0 First version<br>
 				1.1 New request to detect the missing timer<br>
-				1.2 Execute Groovy script
+				2.0 Execute Groovy script
+				2.2 Add SQL parameters in Groovy Script
 			</div>
 		</td></tr>
 	</table>
 	</center>
 
+	<ul class="nav nav-tabs"  ng-class="{'nav-stacked': vertical, 'nav-justified': justified}" ng-transclude>
+
+		<li ng-class="{active: active, disabled: false" id="form-tab" heading="All" active="true" title="Environment" select="ctrl.navbaractiv == 'environment'" class="{{ctrl.getNavClass('environment')}}" style="">
+			  <a ng-click="ctrl.navbaractiv = 'environment';" tab-heading-transclude="" class="ng-binding">Environment</a>
+		</li>
+		<li ng-class="{active: active, disabled: false}" id="form-tab" heading="Groovy Code" active="true" title="Groovy" select="ctrl.navbaractiv == 'groovy'" class="{{ctrl.getNavClass('groovy')}}" style="">
+			  <a  ng-click="ctrl.navbaractiv='groovy'" tab-heading-transclude="" class="ng-binding">Maintenance procedures</a>
+		</li>
+		<li ng-class="{active: active, disabled: false}" id="form-tab" heading="Timer" active="true" title="Timer" select="ctrl.navbaractiv == 'timer'" class="{{ctrl.getNavClass('timer')}}" style="">
+			  <a  ng-click="ctrl.navbaractiv='timer'" tab-heading-transclude="" class="ng-binding">Timers</a>
+		</li>
+	</ul>
+		 
+		
+	<!--  ************************************************************  -->	
+	<!--  Tab Environment		 										-->
+	<!--  ************************************************************  -->			
+	<div class="col-lg-12" ng-show="ctrl.navbaractiv == 'environment'">
+		
+		<div class="col-lg-4">
+			<div class="panel panel-success">
+				<div class="panel-heading">Environment</div>
+				<div class="panel-body">
+					<table>
+						<tr> <th>Application server</th> <td>Tomcat</</td> </tr>
+						<tr> <th>Bonita Server</th> <td>7.8.3</td> </tr>
+						<tr> <th>Database</th> <td>Postgresql</td> </tr>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-4">
+			<div class="panel panel-success">
+				<div class="panel-heading">Logs</div>
+				<div class="panel-body">
+					<input type="checkbox" name="vehicle1" value="Bike"> I have a bike<br>
+					<input type="checkbox" name="vehicle2" value="Car"> I have a car<br>
+					<input type="checkbox" name="vehicle3" value="Boat"> I have a boat<br>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-4">
+			<div class="panel panel-success">
+				<div class="panel-heading">Setup Configuration</div>
+				<div class="panel-body">
+					<button class="btn btn-primary">Pull</button>
+				</div>
+			</div>
+		</div>
+		
+		<center>
+			<button class="btn btn-primary">Collect and get a ZIP file</button>
+		</center>
+	</div> <!--  end tab environment -->
 	
-	<div class="col-lg-12">
 	
-		<legend class="text-primary"><span class="glyphicon glyphicon-th"></span>Groovy</legend>
-		<h3>Groovy Execution</h3>
+	<!--  ************************************************************  -->	
+	<!--  Tab Groovy			 										-->
+	<!--  ************************************************************  -->	
+	<div class="col-lg-12" ng-show="ctrl.navbaractiv == 'groovy'">
+		
 		<div class="well">The groovy code is executed on the server. This operation has to be done under the control of Bonitasoft Support</div>
 				
-		<input type="radio" ng-model="towtruckctrl.groovy.type" value="src" >Source
-		<input type="radio" ng-model="towtruckctrl.groovy.type" value="code" >Code
+		<input type="radio" ng-model="ctrl.groovy.type" value="src" >Source
+		<input type="radio" ng-model="ctrl.groovy.type" value="code" >Code
 	 
 		<!--  First : load from a Code -->
-		<div ng-show="towtruckctrl.groovy.type == 'code' || towtruckctrl.groovy.type==''">
+		<div ng-show="ctrl.groovy.type == 'code' || ctrl.groovy.type==''">
 			<table>
-				<tr><td>Bonitasoft Code : <input ng-model="towtruckctrl.groovy.code"></td>
-					<td> <button  ng-click="towtruckctrl.groovyload()" class="btn btn-info btn-xs" ng-disabled="towtruckctrl.inprogress">Load</button></td>
-				<tr><td colspan="3"><div ng-bind-html="towtruckctrl.getListEvents(towtruckctrl.groovy.listeventsload )"></div></td></tr>
+				<tr><td>Bonitasoft Code : <input ng-model="ctrl.groovy.code"></td>
+					<td> <button  ng-click="ctrl.groovyload()" class="btn btn-warning" ng-disabled="ctrl.inprogress">Load</button></td>
+				<tr><td colspan="3"><div ng-bind-html="ctrl.getListEvents(ctrl.groovy.listeventsload )"></div></td></tr>
 						
-				<!--  </tr><td colspan="3"><div class="alert alert-success" ng-show="towtruckctrl.groovy.loadstatus.length>0">{{towtruckctrl.groovy.loadstatus}}</div> -->
-					
-				<tr>
-				<tr ng-repeat="groovyparam in towtruckctrl.groovy.parameters">
-					<td>{{groovyparam.label}}</td>
-					<td><input ng-model="groovyparam.value"></td>
-					<td><div class="well" ng-show="groovyparam.tips.length > 0">{{groovyparam.tips}}</div></td>
-				</tr>
-			</table>				
+				<!--  </tr><td colspan="3"><div class="alert alert-success" ng-show="ctrl.groovy.loadstatus.length>0">{{ctrl.groovy.loadstatus}}</div> -->
+			</table>
+
+			<center>			
+				<h1><span class="label label-info">{{ctrl.groovy.title}}</span></h1><br>
+				{{ctrl.groovy.description}}
+			</center>
+			
+			<div class="panel panel-success">
+				<div class="panel-heading">Parameters</div>
+				<div class="panel-body">
+					<table>
+						<tr ng-repeat="groovyparam in ctrl.groovy.parameters">
+							<td>{{groovyparam.label}}</td>
+							<td>					  	
+								<div ng-if="groovyparam.type=='STRING'" >
+									<input ng-model="groovyparam.value">
+								</div>
+								<div ng-if="groovyparam.type=='TEXT' || groovyparam.type=='JSON'" >
+									<textarea ng-model="groovyparam.value" cols="80" rows="5"></textarea>
+								</div>
+								<div ng-if="groovyparam.type=='INTEGER' " >
+									<input ng-model="groovyparam.value" type="integer">
+								</div>
+								<div ng-if="groovyparam.type=='READONLY' " >
+									{{groovyparam.value}}
+								</div>
+								<div ng-if="groovyparam.type=='SQL' " >
+									({{groovyparam.databasename}}) {{groovyparam.value}}
+								</div>
+							</td>
+							<td><div class="well" ng-show="groovyparam.tips.length > 0">{{groovyparam.tips}}</div></td>
+							<!-- <td><div class="alert alert-info">{{groovyparam}}</div></td> -->
+						</tr>
+						<tr>
+							<td colspan="2">
+							<div class="well">Direct REST API CALL : {{ctrl.groovy.directRestApi}}</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>		
 		</div>
 				
 		<!--  source code -->
-		<div ng-show="towtruckctrl.groovy.type == 'src' || towtruckctrl.groovy.type==''">
+		<div ng-show="ctrl.groovy.type == 'src' || ctrl.groovy.type==''">
 			<table>
 				<tr><td>Groovy Source Code</td></tr>
-					<tr><td><textarea ng-model="towtruckctrl.groovy.src" cols="80" rows="20"></textarea></td></tr>		
+					<tr><td><textarea ng-model="ctrl.groovy.src" cols="80" rows="20"></textarea></td></tr>		
 				<tr><td><div class="font-style: italic;">In your Groovy code, you can use 'apiAccessor', 'apiClient' and 'restAPIContext' variables. Example : ProcessAPI = apiAccessor.getProcessAPI();</div>
 			</table>
 		</div>
 				
+		
 		<table>
 			<tr><td>
-				<div ng-show="towtruckctrl.inprogress"><span class="Loading">.</span></div>
+				<div ng-show="ctrl.inprogress"><span class="Loading">.</span></div>
 				</td><td>
-				<button  ng-click="towtruckctrl.groovyexecute()" class="btn btn-warning btn-xs" ng-disabled="towtruckctrl.inprogress">Execute</button>
+				<button  ng-click="ctrl.groovyexecute()" class="btn btn-warning " ng-disabled="ctrl.inprogress">Execute</button>
 				</td>
 			</tr>
 		</table>
-		<div ng-bind-html="towtruckctrl.getListEvents(towtruckctrl.groovy.listevents )"></div>
+		<div ng-bind-html="ctrl.getListEvents(ctrl.groovy.listevents )"></div>
 			<p>
 				
-		<div class="alert alert-success" ng-show="towtruckctrl.groovy.result.length>0">{{towtruckctrl.groovy.result}}</div>
-		<div class="alert alert-danger" ng-show="towtruckctrl.groovy.exception.length>0">{{towtruckctrl.groovy.exception}}</div>
-									
+		<div class="alert alert-success" ng-show="ctrl.groovy.result.length>0">{{ctrl.groovy.result}}</div>
+		<div class="alert alert-danger" ng-show="ctrl.groovy.exception.length>0">{{ctrl.groovy.exception}}</div>
+		<input type="checkbox" ng-model="ctrl.groovy.showresolved">Show Groovy resolved
+		<div ng-show="ctrl.groovy.showresolved" class="well"" ng-bind-html="ctrl.groovy.groovyResolved"></div>
+	</div>
+	
 
-				
-		<legend class="text-primary"><span class="glyphicon glyphicon-th"></span>Timers</legend>
-		<h3>Missing Timers</h3>
+	<!--  ************************************************************  -->	
+	<!--  Tab Timer				 										-->
+	<!--  ************************************************************  -->	
+	<div class="col-lg-12" ng-show="ctrl.navbaractiv == 'timer'">
+											
+		<h1 class="text-primary">Timers</h1>
 		<table><tr><td>
-				<div ng-show="towtruckctrl.inprogress"><span class="Loading">.</span></div>
+				<div ng-show="ctrl.inprogress"><span class="Loading">.</span></div>
 				</td><td>
-				<button  ng-click="towtruckctrl.getmissingtimer()" class="btn btn-info btn-xs" ng-disabled="towtruckctrl.inprogress">Collect informations</button>
+				<button  ng-click="ctrl.getmissingtimer()" class="btn btn-info btn-xs" ng-disabled="ctrl.inprogress">Collect informations</button>
 				</td>
 				</tr>
 		</table>
-		{{towtruckctrl.timerstatus}}
-		</table>
-			<!-- for the final page, remove this button 
-			<button id="collectbtn" ng-click="towtruckctrl.deletetimers()" class="btn btn-info btn-xs">Delete timers</button> 
+		{{ctrl.timerstatus}}
+		
+		<!-- for the final page, remove this button 
+			<button id="collectbtn" ng-click="ctrl.deletetimers()" class="btn btn-info btn-xs">Delete timers</button> 
 			-->
-		<div class="alert alert-danger" role="alert" ng-show="towtruckctrl.timererror.length > 0">{{towtruckctrl.timererror}}</div>
+		<div class="alert alert-danger" role="alert" ng-show="ctrl.timererror.length > 0">{{ctrl.timererror}}</div>
 			
 		<table class="table table-striped table-hover table-condensed" style="background-color:#C49E71">
 			<tr>
@@ -146,7 +242,7 @@
 				<th>Process Name</th>
 				<th>Process Version</th>
 			</tr>
-			<tr ng-repeat="timer in towtruckctrl.listtimers track by $index">
+			<tr ng-repeat="timer in ctrl.listtimers track by $index">
 				<td>{{timer.name}}</td>
 				<td>{{timer.statename}}</td>
 				<td>{{timer.processinstanceid}}</td>
@@ -156,7 +252,7 @@
 			</tr>
 		</table>
 			
-		<table border="2" ng-show="towtruckctrl.listtimers.length > 0 ">
+		<table border="2" ng-show="ctrl.listtimers.length > 0 ">
 			<tr>
 				<td  style="border:10px">
 					<b>Statename = waiting</b> <br>
@@ -166,7 +262,7 @@
 				
 			<!-- the create does not work </td><td  >
 				The time is create again in the quartz table, by a schedulerService.schedule()<br>
-				<button  ng-click="towtruckctrl.createmissingtimers('recreate')" class="btn btn-info btn-xs" >Create</button>
+				<button  ng-click="ctrl.createmissingtimers('recreate')" class="btn btn-info btn-xs" >Create</button>
 				-->
 				</td><td>
 					<b>Statename = waiting</b> <br>
@@ -182,24 +278,24 @@
 			</tr><tr>
 				<td>
 					<div style="text-align:center;">
-						<button  ng-click="towtruckctrl.createmissingtimers('handle')" class="btn btn-info btn-xs" >Handle timer</button>
+						<button  ng-click="ctrl.createmissingtimers('handle')" class="btn btn-info btn-xs" >Handle timer</button>
 					</div>
 				</td><td>					
 					<div style="text-align:center;">
-						<button  ng-click="towtruckctrl.createmissingtimers('executeTask')" class="btn btn-info btn-xs" >Execute</button>
+						<button  ng-click="ctrl.createmissingtimers('executeTask')" class="btn btn-info btn-xs" >Execute</button>
 					</div>
 				</td><td>					
 					<div style="text-align:center;">
-							<button  ng-click="towtruckctrl.createmissingtimers('retrytask')" class="btn btn-info btn-xs" >Retry</button>
+							<button  ng-click="ctrl.createmissingtimers('retrytask')" class="btn btn-info btn-xs" >Retry</button>
 						</div>
 					</td>
 			</tr>				
 		</table>
 				
 		<br>
-		{{towtruckctrl.missingtimerstatus}}
+		{{ctrl.missingtimerstatus}}
 				
-	</div>
+	</div> <!--  end tab Timer -->
 
 </div>
 		
@@ -222,6 +318,6 @@
 <script src="twotruckmonitor.js?v=@_CURRENTTIMEMILIS_@"></script>
 
 <!-- Application dependencies -->
-
+</center>
 </body>
 </html>		

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>CustomPageTownTruck</name>
+	<name>CustomPageTowTruck</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -22,24 +22,45 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>custompage/190102 7.7.4/Actions.groovy</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.7.4_2/workspace/tomcat/server/temp/bonita_portal_26568@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/Actions.groovy</locationURI>
+			<name>GroovyMaintenance</name>
+			<type>2</type>
+			<locationURI>copy_PARENT/GroovyMaintenance</locationURI>
 		</link>
 		<link>
-			<name>custompage/190102 7.7.4/Index.groovy</name>
+			<name>custompage/7.8.3/Actions.groovy</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.7.4_2/workspace/tomcat/server/temp/bonita_portal_26568@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/Index.groovy</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.8.3/workspace/tomcat/server/temp/bonita_portal_101124@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/Actions.groovy</locationURI>
 		</link>
 		<link>
-			<name>custompage/190102 7.7.4/index.html</name>
+			<name>custompage/7.8.3/FireTimers.groovy</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.7.4_2/workspace/tomcat/server/temp/bonita_portal_26568@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/index.html</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.8.3/workspace/tomcat/server/temp/bonita_portal_101124@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/GroovyMaintenance/FireTimers.groovy</locationURI>
 		</link>
 		<link>
-			<name>custompage/190102 7.7.4/twotruckmonitor.js</name>
+			<name>custompage/7.8.3/Index.groovy</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.7.4_2/workspace/tomcat/server/temp/bonita_portal_26568@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/resources/twotruckmonitor.js</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.8.3/workspace/tomcat/server/temp/bonita_portal_101124@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/Index.groovy</locationURI>
+		</link>
+		<link>
+			<name>custompage/7.8.3/SqlCall.groovy</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.8.3/workspace/tomcat/server/temp/bonita_portal_101124@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/GroovyMaintenance/SqlCall.groovy</locationURI>
+		</link>
+		<link>
+			<name>custompage/7.8.3/index.html</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.8.3/workspace/tomcat/server/temp/bonita_portal_101124@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/index.html</locationURI>
+		</link>
+		<link>
+			<name>custompage/7.8.3/twotruckmonitor.js</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.8.3/workspace/tomcat/server/temp/bonita_portal_101124@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/resources/twotruckmonitor.js</locationURI>
 		</link>
 	</linkedResources>
+	<variableList>
+		<variable>
+			<name>copy_PARENT</name>
+			<value>$%7BPARENT-2-PROJECT_LOC%7D/git/bonita-community/page_towtruck</value>
+		</variable>
+	</variableList>
 </projectDescription>

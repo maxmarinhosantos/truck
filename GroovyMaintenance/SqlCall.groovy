@@ -21,10 +21,12 @@ import java.io.PrintWriter;
 **/
 
 String filterOnProcess= {{filterProcess;type=STRING}};
+String filterOnVersion= {{filterVersion;type=STRING}};
 
 List<Map<String,Object>> listProcess = {{currentProcess;
 type:sql;
-sqlrequest:all:SELECT * from process_definition   
+sqlrequest:all:SELECT * from process_definition;
+selecttop:2
 }}
 
 int tenantId = 1;

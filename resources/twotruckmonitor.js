@@ -15,11 +15,11 @@ var appCommand = angular.module('towtruck', ['ui.bootstrap','ngSanitize']);
 
 // --------------------------------------------------------------------------
 //
-// Controler Ping
+// Controler TowTruck
 //
 // --------------------------------------------------------------------------
 
-// Ping the server
+
 appCommand.controller('TowTruckControler',
 	function ( $http, $scope, $sce ) {
 	this.isshowhistory=false;
@@ -33,7 +33,14 @@ appCommand.controller('TowTruckControler',
 	   this.isshowhistory = show;
 	}
 
+	this.navbaractiv='environment';
 	
+	this.getNavClass = function( tabtodisplay )
+	{
+		if (this.navbaractiv === tabtodisplay)
+		 return 'ng-isolate-scope active';
+		return 'ng-isolate-scope';
+	}
 	// ------------------------------------------------------------------------------
 	//    Timer
 	// ------------------------------------------------------------------------------
@@ -102,7 +109,7 @@ appCommand.controller('TowTruckControler',
 						self.inprogress=false;
 				})
 				.error( function() {
-					alert('an error occured');
+
 						self.timerstatus 		= jsonResult.timerstatus;
 						self.timererror 		= jsonResult.timererror;
 						self.inprogress=false;
@@ -115,7 +122,7 @@ appCommand.controller('TowTruckControler',
 	//    Groovy
 	// ------------------------------------------------------------------------------
 
-	this.groovy = { "type": '', "code":"Ping", "src": 'return "Hello Word";' };
+	this.groovy = { "type": '', "code":"", "src": 'return "Hello Word";' };
 	this.listUrlCall=[];
 	this.groovyload = function() 
 	{
@@ -123,6 +130,9 @@ appCommand.controller('TowTruckControler',
 		self.inprogress	=true;
 		self.groovy.result="";
 		self.groovy.type			= 'code';
+		self.groovy.listevents=""
+		self.groovy.result="";
+		self.groovy.exception="";
 		
 		$http.get( '?page=custompage_towtruck&action=groovyload&code='+ this.groovy.code+'&t='+Date.now() )
 		.success( function ( jsonResult ) {
@@ -131,11 +141,15 @@ appCommand.controller('TowTruckControler',
 				
 				self.groovy.parameters 		= jsonResult.placeholder;
 				self.groovy.listeventsload	= jsonResult.listevents;
+				self.groovy.directRestApi	= jsonResult.directRestApi;
+				self.groovy.groovyResolved  = jsonResult.groovyResolved;
+				self.groovy.title			= jsonResult.title;
+				self.groovy.description		= jsonResult.description;
+				
 				self.inprogress				= false;
 		})
 		.error( function() {
-			alert('an error occured');
-				this.groovy.loadstatus="Error at loading."
+				self.groovy.loadstatus="Error at loading."
 				self.inprogress=false;
 			});
 	}
@@ -147,6 +161,8 @@ appCommand.controller('TowTruckControler',
 		self.groovy.result="";
 		self.groovy.listeventsload="";
 		self.groovy.listevents='';
+		self.groovy.result="";
+		self.groovy.exception="";
 		
 		var param = {'type': self.groovy.type};
 		
@@ -169,7 +185,7 @@ appCommand.controller('TowTruckControler',
 		// split the string by packet of 5000 
 		while (json.length>0)
 		{
-			var jsonFirst = encodeURI( json.substring(0,5000));
+			var jsonFirst = encodeURIComponent( json.substring(0,5000));
 			json =json.substring(5000);
 			var action="";
 			if (json.length==0)
@@ -211,10 +227,13 @@ appCommand.controller('TowTruckControler',
 					console.log("Finish", angular.toJson(jsonResult));
 					self.inprogress=false;
 					self.listUrlPercent= 100; 
-					self.groovy.result		= jsonResult.result;
-					self.groovy.listevents	= jsonResult.listevents;
+					self.groovy.result			= jsonResult.result;
+					self.groovy.listevents		= jsonResult.listevents;
 					
-					self.groovy.exception   = jsonResult.exception;
+					self.groovy.exception   	= jsonResult.exception;
+					self.groovy.directRestApi	= jsonResult.directRestApi;
+					self.groovy.groovyResolved  = jsonResult.groovyResolved;
+
 				}
 			})
 			.error( function() {

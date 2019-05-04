@@ -24,7 +24,8 @@ List<Long> flownodesIds = null; // { { ListFlowNodes;tips:Give a list of FlowNod
 List<String> listQuartzJobs = {{ListQuartz;
   type:sql;
   sqlrequest:all:SELECT trigger_name FROM QRTZ_TRIGGERS WHERE ( NEXT_FIRE_TIME < @@systemcurrenttimemillis@@ - 60000 OR START_TIME <> NEXT_FIRE_TIME ) AND TRIGGER_STATE = 'WAITING' AND TRIGGER_TYPE = 'SIMPLE';
-  colnameresult:uppercase
+  colnameresult:uppercase;
+  selecttop:50
 }}
 
 

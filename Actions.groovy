@@ -264,10 +264,11 @@ public class Actions {
         if (accumulateJson==null)
           accumulateJson="";
         if (paramJsonPartial!=null)
-          accumulateJson += java.net.URLDecoder.decode(paramJsonPartial, "UTF-8");
+          accumulateJson += paramJsonPartial; //already decode by Tomcat  java.net.URLDecoder.decode(paramJsonPartial, "UTF-8");
         
         
-        
+        logger.info("Final Accumulator: accumulateJson=[" + accumulateJson + "]");
+
         Map<String, Object> groovyParameters = JSONValue.parse(accumulateJson);
         
         // reset the accumulator
@@ -325,7 +326,7 @@ public class Actions {
         String accumulateJson = (String) httpSession.getAttribute("accumulate");
         if (accumulateJson==null)
           accumulateJson="";
-        accumulateJson += java.net.URLDecoder.decode(paramJsonPartial, "UTF-8");
+        accumulateJson += paramJsonPartial; // Tomcat already decode java.net.URLDecoder.decode(paramJsonPartial, "UTF-8");
         httpSession.setAttribute("accumulate", accumulateJson);
         actionAnswer.responseMap.put("status", "ok");
       } else {
