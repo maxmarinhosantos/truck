@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 
 /* ****************************************************************** */
 /*                                                                    */
-/* Name: ReamTimer                                                    */
+/* Name: FireTimer                                                    */
 /*                                                                    */
 /* Description: Detect all timer not fired, then fired them           */
 /*                                                                    */
@@ -28,63 +28,42 @@ List<String> listQuartzJobs = {{ListQuartz;
   selecttop:50
 }}
 
-
 int tenantId = 1;
 
 
+final PlatformServiceAccessor platformServiceAccessor = ServiceAccessorFactory.getInstance().createPlatformServiceAccessor();
+final TransactionService transactionService = platformServiceAccessor.getTransactionService();
+final TenantServiceAccessor tenantServiceAccessor = platformServiceAccessor.getTenantServiceAccessor(tenantId);
 
-String pw="";
 
-
-// explode first the l
 try {
-  if (flownodesIds==null || flownodesIds.size() == 0)
-  {
-    flownodesIds = new ArrayList<Long>();
-    if (listQuartzJobs.size()>0 )
-    {
-      for (Map record : listQuartzJobs)
-      {
-        String triggerName = record.get("TRIGGER_NAME");
+		//final Iterator<Long> iterator = listQuartzJobs.iterator();
+		//transactionService.executeInTransaction(new ExecuteFlowNodes(tenantServiceAccessor, iterator));
+		// while (iterator.hasNext()) {
+		for (Map record : listQuartzJobs)
+		{
 
-        // format is according case 22385:
-        // For every flownode id extracted from the list of triggers obtained with the query given by Poorav: 
-        // (e.g. Trigger: job_name = 'Timer_Ev_111111' ==> flownode ID: 111111)
-        if (triggerName.startsWith("Timer_Ev_" ))
-        {
-          triggerName = triggerName.substring("Timer_Ev_".length());
-          Long flowNode = Long.valueOf( triggerName );
-          flownodesIds.add( flowNode );
-        }
-      }
-      pw+= "FlowNode Detected from database : "+flownodesIds;
-    }
-  }
-}
-catch(Exception e)
-{
-  pw+=" Failure when explode the SqlArray"
-}
+				String triggerName = record.get("TRIGGER_NAME");
 
-ProcessAPI processAPI = apiAccessor.getProcessAPI();
-try
-{
-  pw+="Execute:"
-  for (Long flowNodeId : flownodesIds)
-  {
-    processAPI.executeFlowNode( flowNodeId);
-    pw+=flowNodeId+",";
-  }
+				// format is according case 22385:
+				// For every flownode id extracted from the list of triggers obtained with the query given by Poorav: 
+				// (e.g. Trigger: job_name = 'Timer_Ev_111111' ==> flownode ID: 111111)
+				if (triggerName.startsWith("Timer_Ev_" ))
+				{
+						triggerName = triggerName.substring("Timer_Ev_".length());
+						Long flowNode = Long.valueOf( triggerName );
 
-  pw += " ====> S U C C E S S, executed "+flownodesIds.size()+" flownodes";
-
+						transactionService.executeInTransaction(new ExecuteFlowNodes(tenantServiceAccessor, flowNode));
+				}
+		}
 } catch (Exception e) {
-  final StringWriter sw = new StringWriter();
-  e.printStackTrace(new PrintWriter(sw));
-  final String exceptionDetails = sw.toString();
-
-  pw+=" ====> failure " + e.getMessage();
-  pm+=exceptionDetails;
+pw.println(" ====> failure " + e.getMessage());
+e.printStackTrace(pw);
 }
 
-return pw;
+
+
+pw.println(" ====> S U C C E S S, executed "+listQuartzJobs.size()+" flownodes");
+
+
+return strW.toString();
