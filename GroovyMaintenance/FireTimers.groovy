@@ -29,6 +29,8 @@ List<String> listQuartzJobs = {{ListQuartz;
 }}
 
 int tenantId = 1;
+StringWriter strW = new StringWriter();
+PrintWriter pw = new PrintWriter(strW);
 
 
 final PlatformServiceAccessor platformServiceAccessor = ServiceAccessorFactory.getInstance().createPlatformServiceAccessor();
