@@ -23,7 +23,7 @@ List<Long> flownodesIds = null; // { { ListFlowNodes;tips:Give a list of FlowNod
 
 List<String> listQuartzJobs = {{ListQuartz;
   type:sql;
-  sqlrequest:all:SELECT trigger_name FROM QRTZ_TRIGGERS WHERE ( NEXT_FIRE_TIME < @@systemcurrenttimemillis@@ - 60000 OR START_TIME <> NEXT_FIRE_TIME ) AND TRIGGER_STATE = 'WAITING' AND TRIGGER_TYPE = 'SIMPLE';
+  sqlrequest:all:SELECT job_name FROM QRTZ_TRIGGERS WHERE ( NEXT_FIRE_TIME < @@systemcurrenttimemillis@@ - 60000 OR START_TIME <> NEXT_FIRE_TIME ) AND TRIGGER_STATE = 'WAITING' AND TRIGGER_TYPE = 'SIMPLE';
   colnameresult:uppercase;
   selecttop:50
 }}
@@ -45,7 +45,7 @@ try {
 		for (Map record : listQuartzJobs)
 		{
 
-				String triggerName = record.get("TRIGGER_NAME");
+				String triggerName = record.get("JOB_NAME");
 
 				// format is according case 22385:
 				// For every flownode id extracted from the list of triggers obtained with the query given by Poorav: 
