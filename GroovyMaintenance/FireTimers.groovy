@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 
 /* ****************************************************************** */
 /*                                                                    */
-/* Name: FireTimer_1.1.1                                                    */
+/* Name: FireTimers_1.1.2                                             */
 /*                                                                    */
 /* Description: Detect all timer not fired, then fired them           */
 /*                                                                    */
@@ -39,36 +39,42 @@ final TenantServiceAccessor tenantServiceAccessor = platformServiceAccessor.getT
 
 
 try {
-		//final Iterator<Long> iterator = listQuartzJobs.iterator();
-		//transactionService.executeInTransaction(new ExecuteFlowNodes(tenantServiceAccessor, iterator));
-		// while (iterator.hasNext()) {
-		for (Map record : listQuartzJobs)
+	int numberExecutionWithSuccess=0;
+	for (Map record : listQuartzJobs)
+	{
+		// use the INTERNAL api: the public API will not execute a trigger if the status is still WAITING.
+		String triggerName = record.get("JOB_NAME");
+
+		// format is according case 22385:
+		// For every flownode id extracted from the list of triggers obtained with the query given by Poorav: 
+		// (e.g. Trigger: job_name = 'Timer_Ev_111111' ==> flownode ID: 111111)
+		if (triggerName.startsWith("Timer_Ev_" ))
 		{
-
-				String triggerName = record.get("JOB_NAME");
-
-				// format is according case 22385:
-				// For every flownode id extracted from the list of triggers obtained with the query given by Poorav: 
-				// (e.g. Trigger: job_name = 'Timer_Ev_111111' ==> flownode ID: 111111)
-				if (triggerName.startsWith("Timer_Ev_" ))
-				{
-						triggerName = triggerName.substring("Timer_Ev_".length());
+			triggerName = triggerName.substring("Timer_Ev_".length());
 						
 						
-						Set<Long> setFlowNode = new HashSet<Long>();
-        					setFlowNode.add( Long.valueOf( triggerName ));
-						ExecuteFlowNodes executeFlowNode= new ExecuteFlowNodes(tenantServiceAccessor, setFlowNode.iterator());
-						transactionService.executeInTransaction(executeFlowNode);
-				}
+			Set<Long> setFlowNode = new HashSet<Long>();
+        		setFlowNode.add( Long.valueOf( triggerName ));
+			try
+			{
+				ExecuteFlowNodes executeFlowNode= new ExecuteFlowNodes(tenantServiceAccessor, setFlowNode.iterator());
+				transactionService.executeInTransaction(executeFlowNode);
+				numberExecutionWithSuccess++;
+			} catch(Exception e)
+			{
+				// the Scheduler execute the flownode before ? 
+				pw.println("FlowNode diseapear "+triggerName+" : "+e.getMessage());
+			}
 		}
+	}
+	pw.println(" ====> S U C C E S S, executed "+numberExecutionWithSuccess+"/listQuartzJobs.size()+" flownodes");
 } catch (Exception e) {
-pw.println(" ====> failure " + e.getMessage());
-e.printStackTrace(pw);
+	pw.println(" ====> failure " + e.getMessage());
+	e.printStackTrace(pw);
 }
 
 
 
-pw.println(" ====> S U C C E S S, executed "+listQuartzJobs.size()+" flownodes");
 
 
 return strW.toString();
