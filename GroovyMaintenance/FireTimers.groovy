@@ -9,9 +9,11 @@ import java.io.PrintWriter;
 
 /* ****************************************************************** */
 /*                                                                    */
-/* Name: FireTimers_1.1.3                                             */
+/* Name: FireTimers_1.1.4                                             */
 /*                                                                    */
-/* Description: Detect all timer not fired, then fired them           */
+/* Version: 1.1.4                                             	      */
+/*                                                                    */
+/* Description: Detect all timers not fired, then fired them          */
 /*                                                                    */
 /* ****************************************************************** */
 
@@ -23,7 +25,7 @@ List<Long> flownodesIds = null; // { { ListFlowNodes;tips:Give a list of FlowNod
 
 List<String> listQuartzJobs = {{ListQuartz;
   type:sql;
-  sqlrequest:all:SELECT job_name FROM QRTZ_TRIGGERS WHERE ( NEXT_FIRE_TIME < @@systemcurrenttimemillis@@ - 60000 OR START_TIME <> NEXT_FIRE_TIME ) AND TRIGGER_STATE = 'WAITING' AND TRIGGER_TYPE = 'SIMPLE';
+  sqlrequest:all:SELECT job_name FROM QRTZ_TRIGGERS, FLOWNODE_INSTANCE  WHERE ( NEXT_FIRE_TIME < @@systemcurrenttimemillis@@ - 60000 OR START_TIME <> NEXT_FIRE_TIME ) AND TRIGGER_STATE = 'WAITING' AND TRIGGER_TYPE = 'SIMPLE' AND FLOWNODE_INSTANCE.ID = CAST( SUBSTRING (job_name, 10) as INT);				
   colnameresult:uppercase;
   selecttop:50
 }}
@@ -40,6 +42,7 @@ final TenantServiceAccessor tenantServiceAccessor = platformServiceAccessor.getT
 
 try {
 	int numberExecutionWithSuccess=0;
+	String flowNodesAlreadyTrigger="";
 	for (Map record : listQuartzJobs)
 	{
 		// use the INTERNAL api: the public API will not execute a trigger if the status is still WAITING.
@@ -62,11 +65,16 @@ try {
 				numberExecutionWithSuccess++;
 			} catch(Exception e)
 			{
-				// the Scheduler execute the flownode before ? 
-				pw.println("FlowNode diseapear "+triggerName+" : "+e.getMessage());
+				// the Scheduler execute the flownode before ?
+				flowNodesAlreadyTrigger+=triggerName+",";
 			}
 		}
 	}
+	if (flowNodesAlreadyTrigger.length()>0)
+		pw.println("Flownode was already executed: "+flowNodesAlreadyTrigger+"<br>");
+
+	
+	
 	pw.println(" ====> S U C C E S S, executed "+numberExecutionWithSuccess+"/"+listQuartzJobs.size()+" flownodes");
 } catch (Exception e) {
 	pw.println(" ====> failure " + e.getMessage());
