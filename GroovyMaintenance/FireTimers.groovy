@@ -67,7 +67,7 @@ try {
 			}
 		}
 	}
-	pw.println(" ====> S U C C E S S, executed "+numberExecutionWithSuccess+"/listQuartzJobs.size()+" flownodes");
+	pw.println(" ====> S U C C E S S, executed "+numberExecutionWithSuccess+"/"+listQuartzJobs.size()+" flownodes");
 } catch (Exception e) {
 	pw.println(" ====> failure " + e.getMessage());
 	e.printStackTrace(pw);
