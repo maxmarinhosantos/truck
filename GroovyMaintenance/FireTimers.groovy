@@ -27,7 +27,7 @@ List<String> listQuartzJobs = {{ListQuartz;
   type:sql;
   sqlrequest:all:SELECT job_name FROM QRTZ_TRIGGERS, FLOWNODE_INSTANCE  WHERE ( NEXT_FIRE_TIME < @@systemcurrenttimemillis@@ - 60000 OR START_TIME <> NEXT_FIRE_TIME ) AND TRIGGER_STATE = 'WAITING' AND TRIGGER_TYPE = 'SIMPLE' AND FLOWNODE_INSTANCE.ID = CAST( SUBSTRING (job_name, 10) as INT);				
   colnameresult:uppercase;
-  selecttop:50
+  selecttop:200
 }}
 
 int tenantId = 1;
