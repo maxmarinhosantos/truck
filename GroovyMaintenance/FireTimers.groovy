@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 
 /* ****************************************************************** */
 /*                                                                    */
-/* Name: FireTimer                                                    */
+/* Name: FireTimer_1.1                                                    */
 /*                                                                    */
 /* Description: Detect all timer not fired, then fired them           */
 /*                                                                    */
@@ -53,9 +53,12 @@ try {
 				if (triggerName.startsWith("Timer_Ev_" ))
 				{
 						triggerName = triggerName.substring("Timer_Ev_".length());
-						Long flowNode = Long.valueOf( triggerName );
-
-						transactionService.executeInTransaction(new ExecuteFlowNodes(tenantServiceAccessor, flowNode));
+						
+						Map<Long> mapLong = new Hash
+						Set<Long> setFlowNode = new HashSet<Long>();
+        					setFlowNode.add( Long.valueOf( triggerName ));
+						ExecuteFlowNodes executeFlowNode= new ExecuteFlowNodes(tenantServiceAccessor, setFlowNode.iterator());
+						transactionService.executeInTransaction(executeFlowNode);
 				}
 		}
 } catch (Exception e) {
