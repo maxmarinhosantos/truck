@@ -9,9 +9,9 @@ import java.io.PrintWriter;
 
 /* ****************************************************************** */
 /*                                                                    */
-/* Name: FireTimers_1.1.4                                             */
+/* Name: FireTimers_1.1.5                                             */
 /*                                                                    */
-/* Version: 1.1.4                                             	      */
+/* Version: 1.1.5                                             	      */
 /*                                                                    */
 /* Description: Detect all timers not fired, then fired them          */
 /*                                                                    */
@@ -25,7 +25,7 @@ List<Long> flownodesIds = null; // { { ListFlowNodes;tips:Give a list of FlowNod
 
 List<String> listQuartzJobs = {{ListQuartz;
   type:sql;
-  sqlrequest:all:SELECT job_name FROM QRTZ_TRIGGERS, FLOWNODE_INSTANCE  WHERE ( NEXT_FIRE_TIME < @@systemcurrenttimemillis@@ - 60000 OR START_TIME <> NEXT_FIRE_TIME ) AND TRIGGER_STATE = 'WAITING' AND TRIGGER_TYPE = 'SIMPLE' AND FLOWNODE_INSTANCE.ID = CAST( SUBSTRING (job_name, 10) as INT);				
+  sqlrequest:all:SELECT job_name FROM QRTZ_TRIGGERS, FLOWNODE_INSTANCE  WHERE ( NEXT_FIRE_TIME < @@systemcurrenttimemillis@@ - 60000 OR START_TIME <> NEXT_FIRE_TIME ) AND TRIGGER_STATE = 'WAITING' AND TRIGGER_TYPE = 'SIMPLE' AND FLOWNODE_INSTANCE.ID = CAST( SUBSTR (job_name, 10) as INT);				
   colnameresult:uppercase;
   selecttop:200
 }}
