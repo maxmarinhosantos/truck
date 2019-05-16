@@ -57,6 +57,9 @@ import org.bonitasoft.web.extension.rest.RestApiController
 import org.bonitasoft.web.extension.ResourceProvider
 
 import org.bonitasoft.engine.session.APISession;
+import org.bonitasoft.log.event.BEventFactory
+import org.bonitasoft.log.event.BEvent
+
 import org.bonitasoft.engine.api.CommandAPI;
 import org.bonitasoft.engine.api.ProcessAPI;
 import org.bonitasoft.engine.api.IdentityAPI;
@@ -77,7 +80,7 @@ import org.bonitasoft.engine.bpm.process.ProcessDeploymentInfo;
 import com.bonitasoft.custompage.towtruck.Timer.MethodResetTimer;
 import com.bonitasoft.custompage.towtruck.Timer;
 
-import com.bonitasoft.custompage.towtruck.GroovyMaintenance;
+import com.bonitasoft.custompage.towtruck.groovymaintenance.GroovyMaintenance;
 
 
 public class Actions {
@@ -229,7 +232,8 @@ public class Actions {
       ProcessAPI processAPI = TenantAPIAccessor.getProcessAPI(session);
       IdentityAPI identityApi = TenantAPIAccessor.getIdentityAPI(session);
       CommandAPI commandAPI = TenantAPIAccessor.getCommandAPI(session);
-
+      File pageDirectory = pageResourceProvider.getPageDirectory();
+      
       if ("getmissingtimer".equals(action)) {
         actionAnswer.setResponse(Timer.getMissingTimers(false, processAPI));
       } else if ("createmissingtimers".equals(action)) {
@@ -254,7 +258,7 @@ public class Actions {
       }
       else if ("groovyload".equals(action)) {
         String groovyCode = request.getParameter("code");
-        actionAnswer.responseMap = GroovyMaintenance.getGroovyMaintenance( request, groovyCode);
+        actionAnswer.responseMap = GroovyMaintenance.getGroovyMaintenance( request, groovyCode, pageDirectory);
       }        
       else if ("groovyexecute".equals(action)) {
         String paramJsonPartial = request.getParameter("paramjson");
@@ -283,26 +287,10 @@ public class Actions {
 
         }
 
-        Actions actions = new Actions();
+        // Actions actions = new Actions();
         try {
           // actionAnswer.responseMap.put("result", actions.executeGroovy(groovySrc, pageResourceProvider, pageContext));
-          
-          MyApiAccessor myApiAccessor = new MyApiAccessor();
-          myApiAccessor.session = pageContext.getApiSession();
-          MyAPIClient myAPIClient = new MyAPIClient();
-          myAPIClient.session = pageContext.getApiSession();
-
-          MyRestContext myRestContext = new MyRestContext();
-          myRestContext.myApiClient = myAPIClient;
-          myRestContext.locale = pageContext.getLocale();
-          myRestContext.resourceProvider = pageResourceProvider;
-
-          Binding binding = new Binding();
-          binding.setVariable(GROOVY_REST_API_CONTEXT, myRestContext);
-          binding.setVariable(GROOVY_API_ACCESSOR, myApiAccessor );
-          binding.setVariable(GROOVY_API_CLIENT, myAPIClient );
-         
-          
+          Binding binding = getBinding( pageResourceProvider,  pageContext);
           actionAnswer.responseMap = GroovyMaintenance.executeGroovyMaintenance( request, groovySrc, (List) groovyParameters.getAt("placeholder"), binding );
 
           
@@ -317,6 +305,33 @@ public class Actions {
           pw.close();
           sw.close();
         }
+      } else if ("groovyrest".equals(action))
+      {
+        // first, load the code
+        String groovyCode = request.getParameter("code");
+        actionAnswer.responseMap = GroovyMaintenance.getGroovyMaintenance( request, groovyCode, pageDirectory);
+        
+        String status = actionAnswer.responseMap.get("status");
+
+        if ("DOWNLOADED".equals(status))
+        {          
+          // second, execute
+          Binding binding = getBinding( pageResourceProvider,  pageContext);
+          List<Map<String, Object>> groovyParameters = new ArrayList();
+          logger.info("#### towtruckCustomPage:Request.getParametersName="+request.getParameterNames());
+             
+          for (String parameterName : request.getParameterNames())
+          {            
+            Map oneParameter = [ "name": parameterName, "value":request.getParameter( parameterName)];
+            groovyParameters.add( oneParameter);
+            logger.info("#### towtruckCustomPage:Parameter["+parameterName+"] value=["+request.getParameter( parameterName)+"]");
+            
+          }
+
+          actionAnswer.responseMap = GroovyMaintenance.executeGroovyMaintenance( request, null, (List) groovyParameters, binding );
+          
+        }
+        
 
       // collect mechanism
       } else if ("collect_add".equals(action)) {
@@ -375,5 +390,27 @@ public class Actions {
     return result;
   
   }
+
+  
+  private static  Binding getBinding(PageResourceProvider pageResourceProvider, PageContext pageContext)
+  {
+    MyApiAccessor myApiAccessor = new MyApiAccessor();
+    myApiAccessor.session = pageContext.getApiSession();
+    MyAPIClient myAPIClient = new MyAPIClient();
+    myAPIClient.session = pageContext.getApiSession();
+  
+    MyRestContext myRestContext = new MyRestContext();
+    myRestContext.myApiClient = myAPIClient;
+    myRestContext.locale = pageContext.getLocale();
+    myRestContext.resourceProvider = pageResourceProvider;
+  
+    Binding binding = new Binding();
+    binding.setVariable(GROOVY_REST_API_CONTEXT, myRestContext);
+    binding.setVariable(GROOVY_API_ACCESSOR, myApiAccessor );
+    binding.setVariable(GROOVY_API_CLIENT, myAPIClient );
+    return binding;
+  }
+ 
+  
 
 }
