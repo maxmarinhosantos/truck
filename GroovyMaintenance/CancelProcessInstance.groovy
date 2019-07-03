@@ -6,7 +6,7 @@ ProcessAPI processAPI = apiAccessor.getProcessAPI();
 try
 {
    String processInstanceSt = {{processInstanceId;tips:This process instance will be cancelled (archived)}}
-   if (processInstanceSt ===null)
+   if (processInstanceSt == null)
    {
       return "Please give a processInstanceId";
    }
