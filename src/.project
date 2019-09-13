@@ -27,34 +27,24 @@
 			<locationURI>copy_PARENT/GroovyMaintenance</locationURI>
 		</link>
 		<link>
-			<name>custompage/7.8.3/Actions.groovy</name>
+			<name>custompage/0-git/Actions.groovy</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.8.3/workspace/tomcat/server/temp/bonita_portal_101124@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/Actions.groovy</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/Actions.groovy</locationURI>
 		</link>
 		<link>
-			<name>custompage/7.8.3/FireTimers.groovy</name>
+			<name>custompage/0-git/Index.groovy</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.8.3/workspace/tomcat/server/temp/bonita_portal_101124@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/GroovyMaintenance/FireTimers.groovy</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/Index.groovy</locationURI>
 		</link>
 		<link>
-			<name>custompage/7.8.3/Index.groovy</name>
+			<name>custompage/0-git/index.html</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.8.3/workspace/tomcat/server/temp/bonita_portal_101124@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/Index.groovy</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/index.html</locationURI>
 		</link>
 		<link>
-			<name>custompage/7.8.3/SqlCall.groovy</name>
+			<name>custompage/0-git/twotruckmonitor.js</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.8.3/workspace/tomcat/server/temp/bonita_portal_101124@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/GroovyMaintenance/SqlCall.groovy</locationURI>
-		</link>
-		<link>
-			<name>custompage/7.8.3/index.html</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.8.3/workspace/tomcat/server/temp/bonita_portal_101124@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/index.html</locationURI>
-		</link>
-		<link>
-			<name>custompage/7.8.3/twotruckmonitor.js</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/bonita/BPM-SP-7.8.3/workspace/tomcat/server/temp/bonita_portal_101124@Dragon-Pierre-Yves/tenants/1/pages/custompage_towtruck/resources/twotruckmonitor.js</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/resources/twotruckmonitor.js</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>
