@@ -6,318 +6,368 @@
 <!--[if IE 8]>
 <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!-->
-<html class="no-js"> <!--<![endif]-->
+<html class="no-js">
+<!--<![endif]-->
 <head>
-    <meta charset="utf-8">
-    <title>Two Truck</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width">
-    <link rel="stylesheet" href="style/animate.css" />
-    <link rel="stylesheet" href="style/bootstrap.min.css">
-	<link rel="stylesheet" href="style/main.css">
-	<link rel="stylesheet" href="style/style.css">
- 
-	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-	<script type="text/javascript" src="https://www.google.com/uds/?file=visualization&amp;v=1&amp;hl=fr&amp;packages=corechart&amp;async=2"></script>
-	<link type="text/css" href="https://www.google.com/uds/api/visualization/1.0/ff67c3772da186a412ae3231c32409e9/ui+fr.css" rel="stylesheet">
-	<script type="text/javascript" src="https://www.google.com/uds/api/visualization/1.0/ff67c3772da186a412ae3231c32409e9/format+fr,default+fr,ui+fr,corechart+fr.I.js"></script>
-	<link href="https://ajax.googleapis.com/ajax/static/modules/gviz/1.0/core/tooltip.css" rel="stylesheet" type="text/css">
-				
+<meta charset="utf-8">
+<title>Two Truck</title>
+<meta name="description" content="">
+<meta name="viewport" content="width=device-width">
+<link rel="stylesheet" href="style/animate.css" />
+<link rel="stylesheet" href="style/bootstrap.min.css">
+<link rel="stylesheet" href="style/main.css">
+<link rel="stylesheet" href="style/style.css">
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript" src="https://www.google.com/uds/?file=visualization&amp;v=1&amp;hl=fr&amp;packages=corechart&amp;async=2"></script>
+<link type="text/css" href="https://www.google.com/uds/api/visualization/1.0/ff67c3772da186a412ae3231c32409e9/ui+fr.css" rel="stylesheet">
+<script type="text/javascript" src="https://www.google.com/uds/api/visualization/1.0/ff67c3772da186a412ae3231c32409e9/format+fr,default+fr,ui+fr,corechart+fr.I.js"></script>
+<link href="https://ajax.googleapis.com/ajax/static/modules/gviz/1.0/core/tooltip.css" rel="stylesheet" type="text/css">
+
 <style>
 .Loading {
-    display: inline-block;
-    vertical-align: middle;
-    background-position: center;
-    background:no-repeat;
-    background-image: url('data:image/gif;base64,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');
-    width:20px;
-    height:20px;
-    margin-top:6px;
-    margin-right:7px;
+	display: inline-block;
+	vertical-align: middle;
+	background-position: center;
+	background: no-repeat;
+	background-image:
+		url('data:image/gif;base64,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');
+	width: 20px;
+	height: 20px;
+	margin-top: 6px;
+	margin-right: 7px;
 }
+
 .AutocompleteDropDown {
 	background-color: #fcf8e3;
-	}
-</style>	
-		
+}
+</style>
+
 </head>
 <body ng-app="towtruck">
 
 
-<!--  Page Directory: @_PAGEDIRECTORY_@ -->
+	<!--  Page Directory: @_PAGEDIRECTORY_@ -->
 
 
 
 
-<div class="col-lg-12" class="bs-component"  ng-controller="TowTruckControler as ctrl">
-	<center>
-	<table><tr>
-			<td><h1>Tow Truck</h1></td>
-			<td rowspan="2"><img src="img/towtruck.jpg?" width="150" heigth="150" /></td>
-		</tr>
-		<tr><td style="font-size:0.8em"> <a href="" ng-click="towtruckctrl.showhistory( ! towtruckctrl.isshowhistory )">V2.1</a></td></tr>
-		<tr><td>
-			<div id="showHistory" ng-show="towtruckctrl.isshowhistory" style="border-width:2px;border-style:ridge;border-color:blue">
-				1.0 First version<br>
-				1.1 New request to detect the missing timer<br>
-				2.0 Execute Groovy script
-				2.2 Add SQL parameters in Groovy Script
-			</div>
-		</td></tr>
-	</table>
-	</center>
-
-	<ul class="nav nav-tabs"  ng-class="{'nav-stacked': vertical, 'nav-justified': justified}" ng-transclude>
-
-		<li ng-class="{active: active, disabled: false" id="form-tab" heading="All" active="true" title="Environment" select="ctrl.navbaractiv == 'environment'" class="{{ctrl.getNavClass('environment')}}" style="">
-			  <a ng-click="ctrl.navbaractiv = 'environment';" tab-heading-transclude="" class="ng-binding">Environment</a>
-		</li>
-		<li ng-class="{active: active, disabled: false}" id="form-tab" heading="Groovy Code" active="true" title="Groovy" select="ctrl.navbaractiv == 'groovy'" class="{{ctrl.getNavClass('groovy')}}" style="">
-			  <a  ng-click="ctrl.navbaractiv='groovy'" tab-heading-transclude="" class="ng-binding">Maintenance procedures</a>
-		</li>
-		<li ng-class="{active: active, disabled: false}" id="form-tab" heading="Timer" active="true" title="Timer" select="ctrl.navbaractiv == 'timer'" class="{{ctrl.getNavClass('timer')}}" style="">
-			  <a  ng-click="ctrl.navbaractiv='timer'" tab-heading-transclude="" class="ng-binding">Timers</a>
-		</li>
-	</ul>
-		 
-		
-	<!--  ************************************************************  -->	
-	<!--  Tab Environment		 										-->
-	<!--  ************************************************************  -->			
-	<div class="col-lg-12" ng-show="ctrl.navbaractiv == 'environment'">
-		
-		<div class="col-lg-4">
-			<div class="panel panel-success">
-				<div class="panel-heading">Environment</div>
-				<div class="panel-body">
-					<table>
-						<tr> <th>Application server</th> <td>Tomcat</</td> </tr>
-						<tr> <th>Bonita Server</th> <td>7.8.3</td> </tr>
-						<tr> <th>Database</th> <td>Postgresql</td> </tr>
-					</table>
-				</div>
-			</div>
-		</div>
-		<div class="col-lg-4">
-			<div class="panel panel-success">
-				<div class="panel-heading">Logs</div>
-				<div class="panel-body">
-					<input type="checkbox" name="vehicle1" value="Bike"> I have a bike<br>
-					<input type="checkbox" name="vehicle2" value="Car"> I have a car<br>
-					<input type="checkbox" name="vehicle3" value="Boat"> I have a boat<br>
-				</div>
-			</div>
-		</div>
-
-		<div class="col-lg-4">
-			<div class="panel panel-success">
-				<div class="panel-heading">Setup Configuration</div>
-				<div class="panel-body">
-					<button class="btn btn-primary">Pull</button>
-				</div>
-			</div>
-		</div>
-		
+	<div class="col-lg-12" class="bs-component" ng-controller="TowTruckControler as ctrl">
 		<center>
-			<button class="btn btn-primary">Collect and get a ZIP file</button>
-		</center>
-	</div> <!--  end tab environment -->
-	
-	
-	<!--  ************************************************************  -->	
-	<!--  Tab Groovy			 										-->
-	<!--  ************************************************************  -->	
-	<div class="col-lg-12" ng-show="ctrl.navbaractiv == 'groovy'">
-		
-		<div class="well">The groovy code is executed on the server. This operation has to be done under the control of Bonitasoft Support</div>
-				
-		<input type="radio" ng-model="ctrl.groovy.type" value="src" >Source
-		<input type="radio" ng-model="ctrl.groovy.type" value="code" >Code
-	 
-		<!--  First : load from a Code -->
-		<div ng-show="ctrl.groovy.type == 'code' || ctrl.groovy.type==''">
 			<table>
-				<tr><td>Bonitasoft Code : <input ng-model="ctrl.groovy.code"></td>
-					<td> <button  ng-click="ctrl.groovyload()" class="btn btn-warning" ng-disabled="ctrl.inprogress">Load</button></td>
-				<tr><td colspan="3"><div ng-bind-html="ctrl.getListEvents(ctrl.groovy.listeventsload )"></div></td></tr>
-						
-				<!--  </tr><td colspan="3"><div class="alert alert-success" ng-show="ctrl.groovy.loadstatus.length>0">{{ctrl.groovy.loadstatus}}</div> -->
-			</table>
-
-			<center>			
-				<h1><span class="label label-info">{{ctrl.groovy.title}}</span></h1><br>
-				{{ctrl.groovy.description}}
-			</center>
-			
-			<div class="panel panel-success">
-				<div class="panel-heading">Parameters</div>
-				<div class="panel-body">
-					<table>
-						<tr ng-repeat="groovyparam in ctrl.groovy.parameters">
-							<td>{{groovyparam.label}}</td>
-							<td>					  	
-								<div ng-if="groovyparam.type=='STRING'" >
-									<input ng-model="groovyparam.value">
-								</div>
-								<div ng-if="groovyparam.type=='TEXT' || groovyparam.type=='JSON'" >
-									<textarea ng-model="groovyparam.value" cols="80" rows="5"></textarea>
-								</div>
-								<div ng-if="groovyparam.type=='INTEGER' " >
-									<input ng-model="groovyparam.value" type="integer">
-								</div>
-								<div ng-if="groovyparam.type=='READONLY' " >
-									{{groovyparam.value}}
-								</div>
-								<div ng-if="groovyparam.type=='SQL' " >
-									({{groovyparam.databasename}}) {{groovyparam.value}}
-								</div>
-							</td>
-							<td><div class="well" ng-show="groovyparam.tips.length > 0">{{groovyparam.tips}}</div></td>
-							<!-- <td><div class="alert alert-info">{{groovyparam}}</div></td> -->
-						</tr>
-						<tr>
-							<td colspan="2">
-							<div class="well">Direct REST API CALL : {{ctrl.groovy.directRestApi}}</div>
-							</td>
-						</tr>
-					</table>
-				</div>
-			</div>		
-		</div>
-				
-		<!--  source code -->
-		<div ng-show="ctrl.groovy.type == 'src' || ctrl.groovy.type==''">
-			<table>
-				<tr><td>Groovy Source Code</td></tr>
-					<tr><td><textarea ng-model="ctrl.groovy.src" cols="80" rows="20"></textarea></td></tr>		
-				<tr><td><div class="font-style: italic;">In your Groovy code, you can use 'apiAccessor', 'apiClient' and 'restAPIContext' variables. Example : ProcessAPI = apiAccessor.getProcessAPI();</div>
-			</table>
-		</div>
-				
-		
-		<table>
-			<tr><td>
-				<div ng-show="ctrl.inprogress"><span class="Loading">.</span></div>
-				</td><td>
-				<button  ng-click="ctrl.groovyexecute()" class="btn btn-warning " ng-disabled="ctrl.inprogress">Execute</button>
-				</td>
-			</tr>
-		</table>
-		<div ng-bind-html="ctrl.getListEvents(ctrl.groovy.listevents )"></div>
-			<p>
-				
-		<div class="alert alert-success" ng-show="ctrl.groovy.result.length>0">{{ctrl.groovy.result}}</div>
-		<div class="alert alert-danger" ng-show="ctrl.groovy.exception.length>0">{{ctrl.groovy.exception}}</div>
-		<input type="checkbox" ng-model="ctrl.groovy.showresolved">Show Groovy resolved
-		<div ng-show="ctrl.groovy.showresolved" class="well"" ng-bind-html="ctrl.groovy.groovyResolved"></div>
-	</div>
-	
-
-	<!--  ************************************************************  -->	
-	<!--  Tab Timer				 										-->
-	<!--  ************************************************************  -->	
-	<div class="col-lg-12" ng-show="ctrl.navbaractiv == 'timer'">
-											
-		<h1 class="text-primary">Timers</h1>
-		<table><tr><td>
-				<div ng-show="ctrl.inprogress"><span class="Loading">.</span></div>
-				</td><td>
-				<button  ng-click="ctrl.getmissingtimer()" class="btn btn-info btn-xs" ng-disabled="ctrl.inprogress">Collect informations</button>
-				</td>
+				<tr>
+					<td><h1>Tow Truck</h1></td>
+					<td rowspan="2"><img src="img/towtruck.jpg?" width="150" heigth="150" /></td>
 				</tr>
-		</table>
-		{{ctrl.timerstatus}}
-		
-		<!-- for the final page, remove this button 
-			<button id="collectbtn" ng-click="ctrl.deletetimers()" class="btn btn-info btn-xs">Delete timers</button> 
-			-->
-		<div class="alert alert-danger" role="alert" ng-show="ctrl.timererror.length > 0">{{ctrl.timererror}}</div>
-			
-		<table class="table table-striped table-hover table-condensed" style="background-color:#C49E71">
-			<tr>
-				<th>Name</th>
-				<th>Statename</th>
-				<th>CaseId</th>
-				<th>Process Definition ID</th>
-				<th>Process Name</th>
-				<th>Process Version</th>
-			</tr>
-			<tr ng-repeat="timer in ctrl.listtimers track by $index">
-				<td>{{timer.name}}</td>
-				<td>{{timer.statename}}</td>
-				<td>{{timer.processinstanceid}}</td>
-				<td>{{timer.processdefinitionid}}</td>
-				<td>{{timer.processdefinitionname}}</td>
-				<td>{{timer.processdefinitionversion}}</td>
-			</tr>
-		</table>
-			
-		<table border="2" ng-show="ctrl.listtimers.length > 0 ">
-			<tr>
-				<td  style="border:10px">
-					<b>Statename = waiting</b> <br>
-					<b>Effect:</b> the quartz timer for a timer in waiting state will be recreated
-					<b>Implementation:</b> On each timer, the method timerEventHandlerStrategy.handleCatchEvent() is called<br>
-					Limitation:</b> this operation works only on "waiting" timer.<br>
-				
-			<!-- the create does not work </td><td  >
-				The time is create again in the quartz table, by a schedulerService.schedule()<br>
-				<button  ng-click="ctrl.createmissingtimers('recreate')" class="btn btn-info btn-xs" >Create</button>
-				-->
-				</td><td>
-					<b>Statename = waiting</b> <br>
-					<b>Effect:</b> will skip the current waiting timer and go to the next step.<br>
-					<b>Implementation:</b> execute the task by the method processAPI.executeFlowNode()<br>					
-					<b>Limitation:</b> this operation works only on "waiting" timer.<br>
-				</td><td>
-				    <b>Statename = failed</b> <br>
-					<b>Effect:</b> the timer will be retried.
-					<b>Implementation:</b> apply on the task the method processAPI.retryTask().<br>
-					<b>Limitation:</b> this operation works only on "failed" timer.<br>
-				</td>
-			</tr><tr>
-				<td>
-					<div style="text-align:center;">
-						<button  ng-click="ctrl.createmissingtimers('handle')" class="btn btn-info btn-xs" >Handle timer</button>
-					</div>
-				</td><td>					
-					<div style="text-align:center;">
-						<button  ng-click="ctrl.createmissingtimers('executeTask')" class="btn btn-info btn-xs" >Execute</button>
-					</div>
-				</td><td>					
-					<div style="text-align:center;">
-							<button  ng-click="ctrl.createmissingtimers('retrytask')" class="btn btn-info btn-xs" >Retry</button>
+				<tr>
+					<td style="font-size: 0.8em"><a href="" ng-click="towtruckctrl.showhistory( ! towtruckctrl.isshowhistory )">V2.2</a></td>
+				</tr>
+				<tr>
+					<td>
+						<div id="showHistory" ng-show="towtruckctrl.isshowhistory" style="border-width: 2px; border-style: ridge; border-color: blue">
+							1.0 First version<br> 1.1 New request to detect the missing timer<br> 2.0 Execute Groovy script 2.2 Add SQL parameters in Groovy Script
 						</div>
 					</td>
-			</tr>				
-		</table>
-				
-		<br>
-		{{ctrl.missingtimerstatus}}
-				
-	</div> <!--  end tab Timer -->
+				</tr>
+			</table>
+		</center>
 
-</div>
-		
+		<ul class="nav nav-tabs" ng-class="{'nav-stacked': vertical, 'nav-justified': justified}" ng-transclude>
+
+			<li ng-class="{active: active, disabled: false" id="form-tab" heading="All" active="true" title="Environment" select="ctrl.navbaractiv == 'environment'" class="{{ctrl.getNavClass('environment')}}"
+				style=""><a ng-click="ctrl.navbaractiv = 'environment';" tab-heading-transclude="" class="ng-binding">Environment</a></li>
+			<li ng-class="{active: active, disabled: false}" id="form-tab" heading="Groovy Code" active="true" title="Groovy" select="ctrl.navbaractiv == 'groovy'" class="{{ctrl.getNavClass('groovy')}}"
+				style=""><a ng-click="ctrl.navbaractiv='groovy'" tab-heading-transclude="" class="ng-binding">Maintenance procedures</a></li>
+			<li ng-class="{active: active, disabled: false}" id="form-tab" heading="Timer" active="true" title="Timer" select="ctrl.navbaractiv == 'timer'" class="{{ctrl.getNavClass('timer')}}" style="">
+				<a ng-click="ctrl.navbaractiv='timer'" tab-heading-transclude="" class="ng-binding">Timers</a>
+			</li>
+		</ul>
 
 
-<!-- Third party dependencies -->
+		<!--  ************************************************************  -->
+		<!--  Tab Environment		 										-->
+		<!--  ************************************************************  -->
+		<div class="col-lg-12" ng-show="ctrl.navbaractiv == 'environment'">
+
+			<div class="col-lg-4">
+				<div class="panel panel-success">
+					<div class="panel-heading">Environment</div>
+					<div class="panel-body">
+						<table>
+							<tr>
+								<th>Application server</th>
+								<td>Tomcat</</td>
+							</tr>
+							<tr>
+								<th>Bonita Server</th>
+								<td>7.8.3</td>
+							</tr>
+							<tr>
+								<th>Database</th>
+								<td>Postgresql</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<div class="panel panel-success">
+					<div class="panel-heading">Logs</div>
+					<div class="panel-body">
+						<input type="checkbox" name="vehicle1" value="Bike"> I have a bike<br> <input type="checkbox" name="vehicle2" value="Car"> I have a car<br> <input type="checkbox"
+							name="vehicle3" value="Boat"> I have a boat<br>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4">
+				<div class="panel panel-success">
+					<div class="panel-heading">Setup Configuration</div>
+					<div class="panel-body">
+						<button class="btn btn-primary">Pull</button>
+					</div>
+				</div>
+			</div>
+
+			<center>
+				<button class="btn btn-primary">Collect and get a ZIP file</button>
+			</center>
+		</div>
+		<!--  end tab environment -->
 
 
-<script src="3rd-party/jquery.min.js"></script>
+		<!--  ************************************************************  -->
+		<!--  Tab Groovy			 										-->
+		<!--  ************************************************************  -->
+		<div class="col-lg-12" ng-show="ctrl.navbaractiv == 'groovy'">
 
-<script src="3rd-party/angular.min.js"></script>
+			<div class="well">The groovy code is executed on the server. This operation has to be done under the control of Bonitasoft Support</div>
 
-<script src="3rd-party/angular-resource.min.js"></script>
-<script src="3rd-party/angular-cookies.min.js"></script>
+			<input type="radio" ng-model="ctrl.groovy.type" value="src">Source <input type="radio" ng-model="ctrl.groovy.type" value="code">Code <input type="radio"
+				ng-model="ctrl.groovy.type" value="srcparameter">Source with parameters
 
-<script src="3rd-party/bootstrap/js/bootstrap.min.js"></script>
-<script src="3rd-party/angular-bootstrap-tpls.min.js"></script>
-<script src="3rd-party/angular-sanitize.min.js"></script> 
+			<!--  First : load from a Code -->
+			<div ng-if="ctrl.groovy.type == 'code' || ctrl.groovy.type == 'srcparameter' || ctrl.groovy.type==''">
+				<table ng-if="ctrl.groovy.type == 'code' || ctrl.groovy.type==''">
+					<tr>
+						<td>Bonitasoft Code : <input ng-model="ctrl.groovy.code"></td>
+						<td>
+							<button ng-click="ctrl.groovyLoad()" class="btn btn-warning" ng-disabled="ctrl.inprogress">Load</button>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="3"><div ng-bind-html="ctrl.getListEvents(ctrl.groovy.listeventsload )"></div></td>
+					</tr>
 
-<script src="twotruckmonitor.js?v=@_CURRENTTIMEMILIS_@"></script>
+					<!--  </tr><td colspan="3"><div class="alert alert-success" ng-show="ctrl.groovy.loadstatus.length>0">{{ctrl.groovy.loadstatus}}</div> -->
+				</table>
+				<table ng-if="ctrl.groovy.type == 'srcparameter'">
+					<tr>
+						<td>Set the source code below, then click on Interpretation. Source will be interpreted and parameters will be calculated</td>
+					</tr>
+					<tr>
+						<td><button ng-click="ctrl.groovyInterpretation()" class="btn btn-primary" ng-disabled="ctrl.inprogress">Interpretation</button></td>
+					</tr>
+					<tr>
+						<td colspan="3"><div ng-bind-html="ctrl.getListEvents(ctrl.groovy.listeventsload )"></div></td>
+					</tr>
 
-<!-- Application dependencies -->
-</center>
+					<!--  </tr><td colspan="3"><div class="alert alert-success" ng-show="ctrl.groovy.loadstatus.length>0">{{ctrl.groovy.loadstatus}}</div> -->
+				</table>
+
+				<center>
+					<h1>
+						<span class="label label-info">{{ctrl.groovy.title}}</span>
+					</h1>
+					<br> {{ctrl.groovy.description}}
+				</center>
+
+				<div class="panel panel-success">
+					<div class="panel-heading">Parameters</div>
+					<div class="panel-body">
+						<table width="100%">
+							<tr ng-repeat="groovyparam in ctrl.groovy.parameters">
+								<td style="padding:0px 5px;">{{groovyparam.label}}</td>
+								<td style="padding:0px 5px;">
+									<div ng-if="groovyparam.type=='STRING'" placeholder="{{groovyparam.placeholder}}">
+										<input ng-model="groovyparam.value">
+									</div>
+									<div ng-if="groovyparam.type=='TEXT'" >
+										<textarea ng-model="groovyparam.value" cols="80" rows="5" placeholder="{{groovyparam.placeholder}}"></textarea>
+									</div>
+									<div ng-if="groovyparam.type=='JSON'">
+										<textarea ng-model="groovyparam.value" cols="80" rows="5" placeholder="{{groovyparam.placeholder}}"></textarea>
+										<br>
+										<div style="font-size:small">JSON format. Example: <div class="label label-default">{"firstname" :"Walter", "lastname":"Bates"}</div></div>
+										
+									</div>
+									
+									<div ng-if="groovyparam.type=='LIST'">
+										<input ng-model="groovyparam.value" placeholder="{{groovyparam.placeholder}}"></input>
+										<br>
+										<div style="font-size:small">LIST format. Example: <div class="label label-default">12, 32, 54</div> or <div class="label label-default">"Blue"Red", "Yellow"</div></div>
+										
+									</div>
+									<div ng-if="groovyparam.type=='INTEGER' ">
+										<input ng-model="groovyparam.value" type="integer" placeholder="{{groovyparam.placeholder}}">
+									</div>
+									<div ng-if="groovyparam.type=='READONLY' ">{{groovyparam.value}}</div>
+									<div ng-if="groovyparam.type=='SQL' ">({{groovyparam.databasename}}) {{groovyparam.value}}</div>
+								</td>
+								<td style="padding:0px 5px;"><div class="well" ng-show="groovyparam.tips.length > 0">{{groovyparam.tips}}</div></td>
+								<!-- <td><div class="alert alert-info">{{groovyparam}}</div></td> -->
+							</tr>
+							<tr>
+								<td colspan="3">
+									<div class="well">Direct REST API CALL : {{ctrl.groovy.directRestApi}}</div>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!--  source code -->
+			<div ng-if="ctrl.groovy.type == 'src' || ctrl.groovy.type == 'srcparameter' || ctrl.groovy.type==''">
+				<table style="width: 100%"">
+					<tr>
+						<td>Groovy Source Code</td>
+					</tr>
+					<tr>
+						<td><textarea ng-model="ctrl.groovy.src" rows="20" style="width: 100%"></textarea></td>
+					</tr>
+					<tr>
+						<td><div class="font-style: italic;">In your Groovy code, you can use 'apiAccessor', 'apiClient' and 'restAPIContext' variables. Example : ProcessAPI = apiAccessor.getProcessAPI();</div>
+				</table>
+			</div>
+
+
+			<table>
+				<tr>
+					<td style="padding: 0px 5px;">
+						<div ng-show="ctrl.inprogress">
+							<span class="Loading">.</span>
+						</div>
+					</td>
+
+					<td ng-if="ctrl.groovy.type == 'srcparameter'"  style="padding: 0px 5px;">
+						<button ng-click="ctrl.groovyInterpretation()" class="btn btn-primary" ng-disabled="ctrl.inprogress">Interpretation</button></td>
+
+					<td  style="padding: 0px 5px;">
+						<button ng-click="ctrl.groovyexecute()" class="btn btn-info " ng-disabled="ctrl.inprogress">Execute</button>
+					</td>
+				</tr>
+			</table>
+			<div ng-bind-html="ctrl.getListEvents(ctrl.groovy.listevents )"></div>
+			<p>
+			<div class="alert alert-success" ng-show="ctrl.groovy.result.length>0">{{ctrl.groovy.result}}</div>
+			<div class="alert alert-danger" ng-show="ctrl.groovy.exception.length>0">{{ctrl.groovy.exception}}</div>
+			<input type="checkbox" ng-model="ctrl.groovy.showresolved">Show Groovy resolved
+			<div ng-show="ctrl.groovy.showresolved" class="well" " ng-bind-html="ctrl.groovy.groovyResolved"></div>
+		</div>
+
+
+		<!--  ************************************************************  -->
+		<!--  Tab Timer				 										-->
+		<!--  ************************************************************  -->
+		<div class="col-lg-12" ng-show="ctrl.navbaractiv == 'timer'">
+
+			<h1 class="text-primary">Timers</h1>
+			<table>
+				<tr>
+					<td>
+						<div ng-show="ctrl.inprogress">
+							<span class="Loading">.</span>
+						</div>
+					</td>
+					<td>
+						<button ng-click="ctrl.getmissingtimer()" class="btn btn-info btn-xs" ng-disabled="ctrl.inprogress">Collect informations</button>
+					</td>
+				</tr>
+			</table>
+			{{ctrl.timerstatus}}
+
+			<!-- for the final page, remove this button 
+			<button id="collectbtn" ng-click="ctrl.deletetimers()" class="btn btn-info btn-xs">Delete timers</button> 
+			-->
+			<div class="alert alert-danger" role="alert" ng-show="ctrl.timererror.length > 0">{{ctrl.timererror}}</div>
+
+			<table class="table table-striped table-hover table-condensed" style="background-color: #C49E71">
+				<tr>
+					<th>Name</th>
+					<th>Statename</th>
+					<th>CaseId</th>
+					<th>Process Definition ID</th>
+					<th>Process Name</th>
+					<th>Process Version</th>
+				</tr>
+				<tr ng-repeat="timer in ctrl.listtimers track by $index">
+					<td>{{timer.name}}</td>
+					<td>{{timer.statename}}</td>
+					<td>{{timer.processinstanceid}}</td>
+					<td>{{timer.processdefinitionid}}</td>
+					<td>{{timer.processdefinitionname}}</td>
+					<td>{{timer.processdefinitionversion}}</td>
+				</tr>
+			</table>
+
+			<table border="2" ng-show="ctrl.listtimers.length > 0 ">
+				<tr>
+					<td style="border: 10px"><b>Statename = waiting</b> <br> <b>Effect:</b> the quartz timer for a timer in waiting state will be recreated <b>Implementation:</b> On each timer, the method
+						timerEventHandlerStrategy.handleCatchEvent() is called<br> Limitation:</b> this operation works only on "waiting" timer.<br> <!-- the create does not work </td><td  >
+				The time is create again in the quartz table, by a schedulerService.schedule()<br>
+				<button  ng-click="ctrl.createmissingtimers('recreate')" class="btn btn-info btn-xs" >Create</button>
+				--></td>
+					<td><b>Statename = waiting</b> <br> <b>Effect:</b> will skip the current waiting timer and go to the next step.<br> <b>Implementation:</b> execute the task by the method
+						processAPI.executeFlowNode()<br> <b>Limitation:</b> this operation works only on "waiting" timer.<br></td>
+					<td><b>Statename = failed</b> <br> <b>Effect:</b> the timer will be retried. <b>Implementation:</b> apply on the task the method processAPI.retryTask().<br> <b>Limitation:</b> this
+						operation works only on "failed" timer.<br></td>
+				</tr>
+				<tr>
+					<td>
+						<div style="text-align: center;">
+							<button ng-click="ctrl.createmissingtimers('handle')" class="btn btn-info btn-xs">Handle timer</button>
+						</div>
+					</td>
+					<td>
+						<div style="text-align: center;">
+							<button ng-click="ctrl.createmissingtimers('executeTask')" class="btn btn-info btn-xs">Execute</button>
+						</div>
+					</td>
+					<td>
+						<div style="text-align: center;">
+							<button ng-click="ctrl.createmissingtimers('retrytask')" class="btn btn-info btn-xs">Retry</button>
+						</div>
+					</td>
+				</tr>
+			</table>
+
+			<br> {{ctrl.missingtimerstatus}}
+
+		</div>
+		<!--  end tab Timer -->
+
+	</div>
+
+
+
+	<!-- Third party dependencies -->
+
+
+	<script src="3rd-party/jquery.min.js"></script>
+
+	<script src="3rd-party/angular.min.js"></script>
+
+	<script src="3rd-party/angular-resource.min.js"></script>
+	<script src="3rd-party/angular-cookies.min.js"></script>
+
+	<script src="3rd-party/bootstrap/js/bootstrap.min.js"></script>
+	<script src="3rd-party/angular-bootstrap-tpls.min.js"></script>
+	<script src="3rd-party/angular-sanitize.min.js"></script>
+
+	<script src="twotruckmonitor.js?v=@_CURRENTTIMEMILIS_@"></script>
+
+	<!-- Application dependencies -->
+	</center>
 </body>
-</html>		
+</html>

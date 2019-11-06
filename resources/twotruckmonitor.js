@@ -46,13 +46,17 @@ appCommand.controller('TowTruckControler',
 	// ------------------------------------------------------------------------------
 	this.createmissingtimers = function( typeCreation)
 	{
-
-			
 		var self=this;
 		self.inprogress=true;
 		
 		$http.get( '?page=custompage_towtruck&action=createmissingtimers&typecreation='+typeCreation+'&t='+Date.now() )
-				.success( function ( jsonResult ) {
+				.success( function ( jsonResult, statusHttp, headers, config ) {
+					// connection is lost ?
+					if (statusHttp==401 || typeof jsonResult === 'string') {
+						console.log("Redirected to the login page !");
+						window.location.reload();
+					}
+
 						console.log("history",jsonResult);
 						self.listtimers 		= jsonResult.listtimers;
 						self.missingtimerstatus	= jsonResult.missingtimerstatus;
@@ -75,7 +79,13 @@ appCommand.controller('TowTruckControler',
 		self.inprogress=true;
 
 		$http.get( '?page=custompage_towtruck&action=getmissingtimer'+'&t='+Date.now() )
-				.success( function ( jsonResult ) {
+				.success( function ( jsonResult, statusHttp, headers, config ) {
+					// connection is lost ?
+					if (statusHttp==401 || typeof jsonResult === 'string') {
+						console.log("Redirected to the login page !");
+						window.location.reload();
+					}
+
 						console.log("history",jsonResult);
 						self.listtimers 		= jsonResult.listtimers;
 						self.timerstatus 		= jsonResult.timerstatus;
@@ -100,7 +110,13 @@ appCommand.controller('TowTruckControler',
 		self.inprogress=true;
 
 		$http.get( '?page=custompage_towtruck&action=deletetimers'+'&t='+Date.now() )
-				.success( function ( jsonResult ) {
+				.success( function ( jsonResult, statusHttp, headers, config ) {
+					// connection is lost ?
+					if (statusHttp==401 || typeof jsonResult === 'string') {
+						console.log("Redirected to the login page !");
+						window.location.reload();
+					}
+
 						console.log("history",jsonResult);
 						self.listtimers 		= jsonResult.listtimers;
 						self.timerstatus 		= jsonResult.timerstatus;
@@ -124,7 +140,7 @@ appCommand.controller('TowTruckControler',
 
 	this.groovy = { "type": '', "code":"", "src": 'return "Hello Word";' };
 	this.listUrlCall=[];
-	this.groovyload = function() 
+	this.groovyLoad = function() 
 	{
 		var self=this;
 		self.inprogress	=true;
@@ -135,7 +151,13 @@ appCommand.controller('TowTruckControler',
 		self.groovy.exception="";
 		
 		$http.get( '?page=custompage_towtruck&action=groovyload&code='+ this.groovy.code+'&t='+Date.now() )
-		.success( function ( jsonResult ) {
+		.success( function ( jsonResult, statusHttp, headers, config ) {
+			// connection is lost ?
+			if (statusHttp==401 || typeof jsonResult === 'string') {
+				console.log("Redirected to the login page !");
+				window.location.reload();
+			}
+
 				console.log("history",jsonResult);
 				self.groovy.loadstatus 	= "Script loaded";
 				
@@ -154,6 +176,25 @@ appCommand.controller('TowTruckControler',
 			});
 	}
 	
+	
+	
+	this.groovyInterpretation = function() 
+	{
+		var self=this;
+		self.inprogress	=true;
+		self.groovy.result="";
+		self.groovy.listevents=""
+		self.groovy.result="";
+		self.groovy.exception="";
+		var param = { 'src': self.groovy.src };
+		console.log("groovyinterpretation param="+angular.toJson(param));
+		
+		this.httpCall( param, 'groovyinterpretation' );
+		
+		
+	}
+	
+	
 	this.groovyexecute = function()
 	{
 		var self=this;
@@ -166,22 +207,32 @@ appCommand.controller('TowTruckControler',
 		
 		var param = {'type': self.groovy.type};
 		
-		if (self.groovy.type=='code')
-		{
+		if (self.groovy.type=='code' )	{
 			param.placeholder = self.groovy.parameters;
 			param.code = self.groovy.code;
 		}
-		else
+		else if (self.groovy.type=='srcparameter') {
+			param.placeholder = self.groovy.parameters;
+			param.code = self.groovy.code;
 			param.src = self.groovy.src;
+		}
+		else {
+			param.src = self.groovy.src;
+		}
 		
-		// groovy page does not manage the POST, and the groovy may be very big : so, let's trunk it
-		this.listUrlCall=[];
+		
 		// this.listUrlCall.push( "action=collect_reset");
 		
 		// prepare the string
-
+		this.httpCall( param, 'groovyexecute' );
+	}
+	
+	this.httpCall = function( param, actionToExecute ) {
+		// groovy page does not manage the POST, and the groovy may be very big : so, let's trunk it
+		this.listUrlCall=[];
+		this.actionToExecute = actionToExecute;
 		var json = angular.toJson( param, false);
-
+		var firstUrl="1";
 		// split the string by packet of 5000 
 		while (json.length>0)
 		{
@@ -189,11 +240,11 @@ appCommand.controller('TowTruckControler',
 			json =json.substring(5000);
 			var action="";
 			if (json.length==0)
-				action="groovyexecute";
+				action=actionToExecute;
 			else
 				action="collect_add";
-			this.listUrlCall.push( "action="+action+"&paramjson="+jsonFirst);
-
+			this.listUrlCall.push( "action="+action+"&firstUrl="+firstUrl+"&paramjson="+jsonFirst);
+			firstUrl="0";
 		}
 		var self=this;
 		// self.listUrlCall.push( "action=groovyexecute");
@@ -215,7 +266,13 @@ appCommand.controller('TowTruckControler',
 		self.listUrlPercent= Math.round( (100 *  self.listUrlIndex) / self.listUrlCall.length);
 		
 		$http.get( '?page=custompage_towtruck&'+self.listUrlCall[ self.listUrlIndex ]+'&t='+Date.now() )
-			.success( function ( jsonResult ) {
+			.success( function ( jsonResult, statusHttp, headers, config ) {
+				// connection is lost ?
+				if (statusHttp==401 || typeof jsonResult === 'string') {
+					console.log("Redirected to the login page !");
+					window.location.reload();
+				}
+
 				// console.log("Correct, advance one more",
 				// angular.toJson(jsonResult));
 				self.listUrlIndex = self.listUrlIndex+1;
@@ -232,7 +289,13 @@ appCommand.controller('TowTruckControler',
 					
 					self.groovy.exception   	= jsonResult.exception;
 					self.groovy.directRestApi	= jsonResult.directRestApi;
-					self.groovy.groovyResolved  = jsonResult.groovyResolved;
+					if (self.actionToExecute =="groovyexecute") {
+						self.groovy.groovyResolved  = jsonResult.groovyResolved;
+					}
+					if (self.actionToExecute =="groovyinterpretation") {
+						self.groovy.parameters 		= jsonResult.placeholder;
+						self.groovy.listeventsload	= jsonResult.listevents;
+					}
 
 				}
 			})

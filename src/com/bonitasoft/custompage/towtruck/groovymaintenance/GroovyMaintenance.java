@@ -58,6 +58,13 @@ public class GroovyMaintenance {
       "Script is not executed",
       "Check the result");
 
+  public static Map<String, Object> getGroovyIntepretation(HttpServletRequest request, String groovySource, File pageDirectory) {
+      ResultInterpretation resultInterpretation = interpretation( groovySource, request, "");
+      resultInterpretation.result.put("listevents", BEventFactory.getHtml(resultInterpretation.listEvents));
+      return resultInterpretation.result;
+  }
+  
+  
   /*
    * Load a groovy maintenance for Github
    */
@@ -103,56 +110,14 @@ public class GroovyMaintenance {
         StoreResult storeResult = groovyArtefact.getProvider().downloadArtefact(groovyArtefact, UrlToDownload.URLDOWNLOAD, logBox);
 
         listEvents.addAll(storeResult.getEvents());
+        
         if (!BEventFactory.isError(storeResult.getEvents())) {
-          String groovySource = storeResult.content;
-
-          // search Title and Description
-          result.put("title", detectCartouche("Name", groovySource));
-          result.put("description", detectCartouche("Description", groovySource));
-
-          // detect all place holders
-          PlaceHolder placeHolder = new PlaceHolder();
-          Set<String> setDetectionKey = placeHolder.detection(groovySource, "{{", "}}");
-          for (String key : setDetectionKey) {
-
-            AttributeHolder attribut = new AttributeHolder(key);
-            listEvents.addAll(attribut.decodeAttribute());
-
-            mapPlaceHolder.put(attribut.name, attribut);
-          }
-          // do a first execution, after detection
-          for (AttributeHolder attribut : mapPlaceHolder.values()) {
-            listEvents.addAll(attribut.execute(mapPlaceHolder));
-          }
-
-          for (AttributeHolder attribut : mapPlaceHolder.values()) {
-            if (attribut.isForm())
-              listPlaceHolder.add(attribut.getForm());
-          } // end detection place holder
-          if (!BEventFactory.isError(listEvents))
-          {
-            result.put("status", "DOWNLOADED");          
-            listEvents.add(GROOVY_DOWNLOADED);
-          }
-          else
-            result.put("status", "NOTEXIST");          
-          
-          // we saved the groovy in the Tomcat session
-          if (request != null) {
-            HttpSession httpSession = request.getSession();
-            httpSession.setAttribute("groovy", groovySource);
-            
-            Map<String,String> mapPlaceHolderSt = new HashMap<String,String>();
-            for (AttributeHolder attribut : mapPlaceHolder.values()) {
-              mapPlaceHolderSt.put(attribut.name, attribut.serialize());
-            }
-            
-            httpSession.setAttribute("placeholder", mapPlaceHolderSt);
-            httpSession.setAttribute("groovyCode", groovyCode);
-          }
-          result.put("placeholder", listPlaceHolder);
-        }
-        result.put("directRestApi", getDirectRestApi( groovyCode, mapPlaceHolder));
+            ResultInterpretation resultInterpretation = interpretation( storeResult.content, request, groovyCode);
+            result.putAll( resultInterpretation.result);
+            result.put("directRestApi", getDirectRestApi( groovyCode, resultInterpretation.mapPlaceHolder));
+            listEvents.addAll( resultInterpretation.listEvents);
+        }   
+         
         
 
       }
@@ -166,6 +131,70 @@ public class GroovyMaintenance {
     return result;
   }
 
+  public static class ResultInterpretation 
+  {
+      Map<String, Object> result = new HashMap<String, Object>();
+      List<BEvent> listEvents = new ArrayList<BEvent>();
+      Map<String, AttributeHolder> mapPlaceHolder = new HashMap<String, AttributeHolder>();
+      List<Map<String, Object>> listPlaceHolder = new ArrayList<Map<String, Object>>();
+      
+  }
+  
+  /**
+   * 
+   * @param groovySource
+   * @return
+   */
+  private static ResultInterpretation interpretation(String groovySource, HttpServletRequest request, String groovyCode ) {
+      ResultInterpretation resultInterpretation = new ResultInterpretation();
+      // search Title and Description
+      resultInterpretation.result.put("title", detectCartouche("Name", groovySource));
+      resultInterpretation.result.put("description", detectCartouche("Description", groovySource));
+
+      // detect all place holders
+      PlaceHolder placeHolder = new PlaceHolder();
+      Set<String> setDetectionKey = placeHolder.detection(groovySource, "{{", "}}");
+      for (String key : setDetectionKey) {
+
+        AttributeHolder attribut = new AttributeHolder(key);
+        resultInterpretation.listEvents.addAll(attribut.decodeAttribute());
+
+        resultInterpretation.mapPlaceHolder.put(attribut.name, attribut);
+      }
+      // do a first execution, after detection
+      for (AttributeHolder attribut : resultInterpretation.mapPlaceHolder.values()) {
+          resultInterpretation.listEvents.addAll(attribut.execute(resultInterpretation.mapPlaceHolder));
+      }
+
+      for (AttributeHolder attribut : resultInterpretation.mapPlaceHolder.values()) {
+        if (attribut.isForm())
+            resultInterpretation.listPlaceHolder.add(attribut.getForm());
+      } // end detection place holder
+      if (!BEventFactory.isError(resultInterpretation.listEvents))
+      {
+          resultInterpretation.result.put("status", "DOWNLOADED");          
+          resultInterpretation.listEvents.add(GROOVY_DOWNLOADED);
+      }
+      else
+          resultInterpretation.result.put("status", "NOTEXIST");          
+      
+      // we saved the groovy in the Tomcat session
+      if (request != null) {
+        HttpSession httpSession = request.getSession();
+        httpSession.setAttribute("groovy", groovySource);
+        
+        Map<String,String> mapPlaceHolderSt = new HashMap<String,String>();
+        for (AttributeHolder attribut : resultInterpretation.mapPlaceHolder.values()) {
+          mapPlaceHolderSt.put(attribut.name, attribut.serialize());
+        }
+        
+        httpSession.setAttribute("placeholder", mapPlaceHolderSt);
+        httpSession.setAttribute("groovyCode", groovyCode);
+      }
+      resultInterpretation.result.put("placeholder", resultInterpretation.listPlaceHolder);
+    
+      return resultInterpretation;
+  }
   /**
    * execute a Groovy Maintenance code
    * 
@@ -181,16 +210,23 @@ public class GroovyMaintenance {
     List<BEvent> listEvents = new ArrayList<BEvent>();
     String groovyCode="";
     Map<String, AttributeHolder> mapPlaceHolder = new HashMap<String, AttributeHolder>();
-    if (groovySource == null && request != null) {
-      HttpSession httpSession = request.getSession();
+    HttpSession httpSession = (request==null ? null : request.getSession());
+    if (groovySource == null && httpSession != null) {
       groovySource = (String) httpSession.getAttribute("groovy");
+    }
+    
+    // place holder is in the session every time
+    if (httpSession!=null) {
       Map<String, String> mapPlaceHolderSt = (Map) httpSession.getAttribute("placeholder");
       // rebuild the attributes
       for (String keyAttribute : mapPlaceHolderSt.values()) {
         AttributeHolder attribute = AttributeHolder.getInstanceFromSerialisation(keyAttribute);
         mapPlaceHolder.put(attribute.name, attribute);
       }
-   
+    }
+    
+    // code is in the session
+    if (httpSession!=null) {
       groovyCode = (String) httpSession.getAttribute("groovyCode");
     }
 
