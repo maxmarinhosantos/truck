@@ -26,7 +26,7 @@ StringBuffer analysis = new StringBuffer();
 
 // flow nodes
 // Attention, at this moment, the list may be a list of whatever - soon more control
-List<Object> flowNodeIds= {{Flownode_Id_List;tips:Please give a list of nodes id, separated by a comma;type:LIST;default:124, 323}};
+List<Object> flowNodeIds= {{flownodeIdList;tips:Please give a list of nodes id, separated by a comma;type:LIST;default:124, 323}};
 
 int tenantId = 1;
 
