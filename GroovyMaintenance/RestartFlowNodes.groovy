@@ -35,6 +35,11 @@ final PlatformServiceAccessor platformServiceAccessor = ServiceAccessorFactory.g
 final TransactionService transactionService = platformServiceAccessor.getTransactionService();
 final TenantServiceAccessor tenantServiceAccessor = platformServiceAccessor.getTenantServiceAccessor(tenantId);
 
+
+ProcessAPI processAPI = apiAccessor.getProcessAPI();
+
+
+ 
 analysis.append("Support Restarting flow nodes ... ");
 try {
   final List<Long> oneFlowNodeIdList = new ArrayList<>();
@@ -50,10 +55,15 @@ try {
     oneFlowNodeIdList.add((Long) flowNodeId);
     final Iterator<Long> iterator = oneFlowNodeIdList.iterator();
     try {
+
+		processAPI.executeFlowNode( Long.parseLong( flowNodeId.toString() ) );
+		/*
       transactionService.executeInTransaction(new ExecuteFlowNodes(tenantServiceAccessor, iterator));
       while (iterator.hasNext()) {
         transactionService.executeInTransaction(new ExecuteFlowNodes(tenantServiceAccessor, iterator));
       }
+	  */
+       analysis.append("(success),");
     } catch (Exception e1) {
       StringWriter sw = new StringWriter();
       PrintWriter pw = new PrintWriter(sw);
