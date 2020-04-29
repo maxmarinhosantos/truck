@@ -60,12 +60,14 @@
 					<td rowspan="2"><img src="img/towtruck.jpg?" width="150" heigth="150" /></td>
 				</tr>
 				<tr>
-					<td style="font-size: 0.8em"><a href="" ng-click="towtruckctrl.showhistory( ! towtruckctrl.isshowhistory )">V2.2</a></td>
+					<td style="font-size: 0.8em"><a href="" ng-click="towtruckctrl.showhistory( ! towtruckctrl.isshowhistory )">V2.3</a></td>
 				</tr>
 				<tr>
 					<td>
 						<div id="showHistory" ng-show="towtruckctrl.isshowhistory" style="border-width: 2px; border-style: ridge; border-color: blue">
-							1.0 First version<br> 1.1 New request to detect the missing timer<br> 2.0 Execute Groovy script 2.2 Add SQL parameters in Groovy Script
+							1.0 First version<br> 1.1 New request to detect the missing timer<br> 
+							2.0 Execute Groovy script 2.2 Add SQL parameters in Groovy Script
+							2.3 Add bonitaToolboxAPI object to access method
 						</div>
 					</td>
 				</tr>
@@ -74,11 +76,16 @@
 
 		<ul class="nav nav-tabs" ng-class="{'nav-stacked': vertical, 'nav-justified': justified}" ng-transclude>
 
-			<li ng-class="{active: active, disabled: false" id="form-tab" heading="All" active="true" title="Environment" select="ctrl.navbaractiv == 'environment'" class="{{ctrl.getNavClass('environment')}}"
+			<!-- <li ng-class="{active: active, disabled: false" id="form-tab" heading="All" active="true" title="Environment" select="ctrl.navbaractiv == 'environment'" class="{{ctrl.getNavClass('environment')}}"
 				style=""><a ng-click="ctrl.navbaractiv = 'environment';" tab-heading-transclude="" class="ng-binding">Environment</a></li>
-			<li ng-class="{active: active, disabled: false}" id="form-tab" heading="Groovy Code" active="true" title="Groovy" select="ctrl.navbaractiv == 'groovy'" class="{{ctrl.getNavClass('groovy')}}"
-				style=""><a ng-click="ctrl.navbaractiv='groovy'" tab-heading-transclude="" class="ng-binding">Maintenance procedures</a></li>
-			<li ng-class="{active: active, disabled: false}" id="form-tab" heading="Timer" active="true" title="Timer" select="ctrl.navbaractiv == 'timer'" class="{{ctrl.getNavClass('timer')}}" style="">
+			-->
+			<li ng-class="{active: active, disabled: false}" id="form-tab" heading="Groovy Code" active="true" title="Groovy" select="ctrl.navbaractiv == 'groovy'" 
+				class="{{ctrl.getNavClass('groovy')}}"
+				style="{{ctrl.getNavStyle('groovy')}}">
+				<a ng-click="ctrl.navbaractiv='groovy'" tab-heading-transclude="" class="ng-binding">Maintenance procedures</a></li>
+			<li ng-class="{active: active, disabled: false}" id="form-tab" heading="Timer" active="true" title="Timer" select="ctrl.navbaractiv == 'timer'" 
+				class="{{ctrl.getNavClass('timer')}}" 
+				style="{{ctrl.getNavStyle('timer')}}">
 				<a ng-click="ctrl.navbaractiv='timer'" tab-heading-transclude="" class="ng-binding">Timers</a>
 			</li>
 		</ul>
@@ -156,7 +163,7 @@
 						</td>
 					</tr>
 					<tr>
-						<td colspan="3"><div ng-bind-html="ctrl.getListEvents(ctrl.groovy.listeventsload )"></div></td>
+						<td colspan="3"><div ng-bind-html="ctrl.trustAsHtml(ctrl.groovy.listeventsload )"></div></td>
 					</tr>
 
 					<!--  </tr><td colspan="3"><div class="alert alert-success" ng-show="ctrl.groovy.loadstatus.length>0">{{ctrl.groovy.loadstatus}}</div> -->
@@ -169,7 +176,7 @@
 						<td><button ng-click="ctrl.groovyInterpretation()" class="btn btn-primary" ng-disabled="ctrl.inprogress">Interpretation</button></td>
 					</tr>
 					<tr>
-						<td colspan="3"><div ng-bind-html="ctrl.getListEvents(ctrl.groovy.listeventsload )"></div></td>
+						<td colspan="3"><div ng-bind-html="ctrl.trustAsHtml(ctrl.groovy.listeventsload )"></div></td>
 					</tr>
 
 					<!--  </tr><td colspan="3"><div class="alert alert-success" ng-show="ctrl.groovy.loadstatus.length>0">{{ctrl.groovy.loadstatus}}</div> -->
@@ -237,7 +244,11 @@
 						<td><textarea ng-model="ctrl.groovy.src" rows="20" style="width: 100%"></textarea></td>
 					</tr>
 					<tr>
-						<td><div class="font-style: italic;">In your Groovy code, you can use 'apiAccessor', 'apiClient' and 'restAPIContext' variables. Example : ProcessAPI = apiAccessor.getProcessAPI();</div>
+						<td><div class="font-style: italic;">In your Groovy code, you can use 'apiAccessor', 'apiClient', 'restAPIContext' and 'towTruckToolbox' variables. Example</div>
+						<div class="well">
+							import org.bonitasoft.engine.api.ProcessAPI;<br>
+						    ProcessAPI processAPI = apiAccessor.getProcessAPI();
+						    </div>
 				</table>
 			</div>
 
@@ -258,10 +269,12 @@
 					</td>
 				</tr>
 			</table>
-			<div ng-bind-html="ctrl.getListEvents(ctrl.groovy.listevents )"></div>
+			<div ng-bind-html="ctrl.trustAsHtml(ctrl.groovy.listevents )"></div>
 			<p>
-			<div class="alert alert-success" ng-show="ctrl.groovy.result.length>0">{{ctrl.groovy.result}}</div>
-			<div class="alert alert-danger" ng-show="ctrl.groovy.exception.length>0">{{ctrl.groovy.exception}}</div>
+			<div class="alert alert-success" ng-show="ctrl.groovy.result.length>0">Result:</div>
+			<div ng-bind-html="ctrl.trustAsHtml(ctrl.groovy.result)"></div>
+			
+			<div class="alert alert-danger" ng-show="ctrl.groovy.exception.length>0"><div ng-bind-html="ctrl.trustAsHtml(ctrl.groovy.exception)}}"></div></div>
 			<input type="checkbox" ng-model="ctrl.groovy.showresolved">Show Groovy resolved
 			<div ng-show="ctrl.groovy.showresolved" class="well" " ng-bind-html="ctrl.groovy.groovyResolved"></div>
 		</div>

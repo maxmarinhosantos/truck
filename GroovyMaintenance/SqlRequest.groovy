@@ -18,7 +18,7 @@ StringBuilder analysis = new StringBuilder();
 // flow nodes
 // Attention, at this moment, the list may be a list of whatever - soon more control
 String sqlRequest= {{sqlRequestBonita;type:TEXT;default:select ID, STARTDATE ,NAME from process_instance}};
-int maxRecords = {{MawRecord;type:INTEGER;default:1000}};
+int maxRecords = {{MaxRecords;type:INTEGER;default:1000}};
 
 
 

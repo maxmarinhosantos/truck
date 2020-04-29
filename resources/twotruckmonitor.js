@@ -33,7 +33,7 @@ appCommand.controller('TowTruckControler',
 	   this.isshowhistory = show;
 	}
 
-	this.navbaractiv='environment';
+	this.navbaractiv='groovy';
 	
 	this.getNavClass = function( tabtodisplay )
 	{
@@ -41,6 +41,13 @@ appCommand.controller('TowTruckControler',
 		 return 'ng-isolate-scope active';
 		return 'ng-isolate-scope';
 	}
+	this.getNavStyle = function( tabtodisplay )
+	{
+		if (this.navbaractiv === tabtodisplay)
+			return 'border: 1px solid #c2c2c2;border-bottom-color: transparent;';
+		return 'background-color:#cbcbcb';
+	}
+	
 	// ------------------------------------------------------------------------------
 	//    Timer
 	// ------------------------------------------------------------------------------
@@ -307,7 +314,7 @@ appCommand.controller('TowTruckControler',
 		};
 	
 		
-		this.getListEvents = function ( listevents ) {
+		this.trustAsHtml = function ( listevents ) {
 			return $sce.trustAsHtml(  listevents );
 		}
 

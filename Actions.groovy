@@ -81,7 +81,7 @@ import com.bonitasoft.custompage.towtruck.Timer.MethodResetTimer;
 import com.bonitasoft.custompage.towtruck.Timer;
 
 import com.bonitasoft.custompage.towtruck.groovymaintenance.GroovyMaintenance;
-
+import com.bonitasoft.custompage.towtruck.groovymaintenance.*;
 
 public class Actions {
 
@@ -91,7 +91,8 @@ public class Actions {
     public final static String GROOVY_REST_API_CONTEXT = "restAPIContext";
     public final static String GROOVY_API_ACCESSOR = "apiAccessor";
     public final static String GROOVY_API_CLIENT = "apiClient";
-
+    public final static String GROOVY_TOWTRUCKTOOLBOX = "towTruckToolbox";
+    
 
 
     /**
@@ -413,10 +414,7 @@ public class Actions {
         myRestContext.locale = pageContext.getLocale();
         myRestContext.resourceProvider = pageResourceProvider;
 
-        Binding binding = new Binding();
-        binding.setVariable(GROOVY_REST_API_CONTEXT, myRestContext);
-        binding.setVariable(GROOVY_API_ACCESSOR, myApiAccessor );
-        binding.setVariable(GROOVY_API_CLIENT, myAPIClient );
+        Binding binding = getBinding(pageResourceProvider,pageContext );
 
         // GroovyShell shell = new GroovyShell(getClass().getClassLoader(), binding);
         CompilerConfiguration conf = new CompilerConfiguration();
@@ -447,6 +445,10 @@ public class Actions {
         binding.setVariable(GROOVY_REST_API_CONTEXT, myRestContext);
         binding.setVariable(GROOVY_API_ACCESSOR, myApiAccessor );
         binding.setVariable(GROOVY_API_CLIENT, myAPIClient );
+        
+        TowTruckToolbox towTruckToobox = new TowTruckToolbox();
+        binding.setVariable(GROOVY_TOWTRUCKTOOLBOX, towTruckToobox );
+
         return binding;
     }
 
