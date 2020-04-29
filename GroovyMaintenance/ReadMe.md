@@ -2,7 +2,37 @@ How to create a Groovy maintenance file
 
 Write your groovy file, with a name "TimerFailedReArm.groovy". Give the code "TimerFailedReArm" to the user to load it.
 
-Place holder
+## Available object
+
+Different object are available in the groovy
+
+### restAPIContext
+The RestAPIConext contains these methods:
+
+ public APIClient getApiClient() 
+ public APISession getApiSession() 
+ public Locale getLocale()
+ public ResourceProvider getResourceProvider()
+ 
+### apiAccessor
+
+The Bonita ApiAccessor 
+        
+    
+## apiClient
+The Bonita ApiClient
+
+### bonitaToolboxAPI
+this object contains theses methods
+    public List<Map<String,Object>> executeSqlRequest(String sqlRequest ) {
+    public List<Map<String,Object>> executeSqlRequest(String sqlRequest, List<Object>  parameter ) {
+
+    public String decoratorHtml(List<Map<String,Object>> listValues)
+    public String decoratorCsv(List<Map<String,Object>> listValues)
+
+
+
+## Place holder
 In the file, you can set some Place Holder. Syntax is {{<key>[;tips:<type>]}}
 For example, you can set
 

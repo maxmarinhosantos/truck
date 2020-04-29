@@ -1,8 +1,6 @@
 package com.bonitasoft.custompage.towtruck.groovymaintenance;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,14 +20,13 @@ import org.bonitasoft.store.BonitaStore.DetectionParameters;
 import org.bonitasoft.store.BonitaStore.UrlToDownload;
 import org.bonitasoft.store.BonitaStoreAPI;
 import org.bonitasoft.store.BonitaStoreGit;
-import org.bonitasoft.store.StoreResult;
-import org.bonitasoft.store.artefact.Artefact;
-import org.bonitasoft.store.artefact.Artefact.TypeArtefact;
+import org.bonitasoft.store.BonitaStoreResult;
+import org.bonitasoft.store.artifact.Artifact;
+import org.bonitasoft.store.artifact.Artifact.TypeArtifact;
 import org.bonitasoft.store.toolbox.LoggerStore;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
 import com.bonitasoft.custompage.towtruck.groovymaintenance.AttributeHolder.TypeAttribute;
-
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
@@ -88,11 +85,11 @@ public class GroovyMaintenance {
       listStores.add(bonitaStoreGit);
 
       DetectionParameters detectionParameters = new BonitaStore.DetectionParameters();
-      detectionParameters.listTypeArtefact = Arrays.asList(TypeArtefact.GROOVY);
-      Artefact groovyArtefact = null;
+      detectionParameters.listTypeArtifact = Arrays.asList(TypeArtifact.GROOVY);
+      Artifact groovyArtefact = null;
 
       for (BonitaStore bonitaStore : listStores) {
-        StoreResult storeResult = bonitaStore.getListArtefacts(detectionParameters, logBox);
+        BonitaStoreResult storeResult = bonitaStore.getListArtefacts(detectionParameters, logBox);
         listEvents.addAll(storeResult.getEvents());
         groovyArtefact = storeResult.getArtefactByName(groovyCode);
         if (groovyArtefact != null) {
@@ -103,11 +100,9 @@ public class GroovyMaintenance {
       if (groovyArtefact == null) {
         listEvents.add(new BEvent(NO_CODE_FOUND, "Code[" + groovyCode + "]"));
       } else {
-        List<Map<String, Object>> listPlaceHolder = new ArrayList<Map<String, Object>>();
-        Map<String, AttributeHolder> mapPlaceHolder = new HashMap<String, AttributeHolder>();
-
+       
         // load it
-        StoreResult storeResult = groovyArtefact.getProvider().downloadArtefact(groovyArtefact, UrlToDownload.URLDOWNLOAD, logBox);
+        BonitaStoreResult storeResult = groovyArtefact.getStore().downloadArtefact(groovyArtefact, UrlToDownload.URLDOWNLOAD, logBox);
 
         listEvents.addAll(storeResult.getEvents());
         
@@ -217,11 +212,14 @@ public class GroovyMaintenance {
     
     // place holder is in the session every time
     if (httpSession!=null) {
-      Map<String, String> mapPlaceHolderSt = (Map) httpSession.getAttribute("placeholder");
+      @SuppressWarnings("rawtypes")
+    Map<String, String> mapPlaceHolderSt = (Map) httpSession.getAttribute("placeholder");
       // rebuild the attributes
-      for (String keyAttribute : mapPlaceHolderSt.values()) {
-        AttributeHolder attribute = AttributeHolder.getInstanceFromSerialisation(keyAttribute);
-        mapPlaceHolder.put(attribute.name, attribute);
+      if (mapPlaceHolderSt!=null) {
+          for (String keyAttribute : mapPlaceHolderSt.values()) {
+            AttributeHolder attribute = AttributeHolder.getInstanceFromSerialisation(keyAttribute);
+            mapPlaceHolder.put(attribute.name, attribute);
+          }
       }
     }
     

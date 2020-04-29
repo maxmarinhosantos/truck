@@ -3,34 +3,18 @@ package com.bonitasoft.custompage.towtruck.groovymaintenance;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-
 import org.bonitasoft.log.event.BEvent;
-import org.omg.CORBA.portable.ValueFactory;
 
 public class AttributeHolder
 {
-  private static final BEvent EVENT_NO_DATASOURCE_FOUND = new BEvent(AttributeHolder.class.getName(), 1L, BEvent.Level.APPLICATIONERROR, "No Datasource detected", 
-    "No datasource for Bonita Engine is found", 
-    "Sql Request can't be executed.", 
-    "Check the list of Datasource");
-  private static final BEvent EVENT_SQLEXECUTION_ERROR = new BEvent(AttributeHolder.class.getName(), 2L, BEvent.Level.APPLICATIONERROR, "Error SQL", 
-    "An SQL executin failed", 
-    "SQL Request can't be executed.", 
-    "Check the SQL request");
   private static final BEvent EVENT_BAD_DECODAGE = new BEvent(AttributeHolder.class.getName(), 3L, BEvent.Level.APPLICATIONERROR, "Bad decodage", 
     "One attribut definition is not correct", 
     "Attribut definition is corrupted", 
@@ -46,6 +30,7 @@ public class AttributeHolder
   public TypeAttribute type;
   public String databaseProductName;
   
+  EngineSqlRequest engineSqlRequest = new EngineSqlRequest();
   public static enum TypeAttribute
   {
     STRING,  TEXT,  INTEGER,  HIDDEN,  READONLY,  SQL,  JSON,  LIST;
@@ -58,8 +43,7 @@ public class AttributeHolder
     UPPERCASE,  LOWERCASE;
   }
   
-  public TypeSqlResult colSqlResult = TypeSqlResult.UPPERCASE;
-  public int selectTop = -1;
+
   
   public AttributeHolder(String placeHolderString)
   {
@@ -100,10 +84,10 @@ public class AttributeHolder
           this.type = TypeAttribute.valueOf(attributeSplit[1].toUpperCase());
         }
         if (attribute.startsWith("colnameresult:")) {
-          this.colSqlResult = TypeSqlResult.valueOf(attributeSplit[1].toUpperCase());
+            engineSqlRequest.colSqlResult = TypeSqlResult.valueOf(attributeSplit[1].toUpperCase());
         }
         if (attribute.startsWith("selecttop:")) {
-          this.selectTop = Integer.valueOf(attributeSplit[1]).intValue();
+            engineSqlRequest.selectTop = Integer.parseInt(attributeSplit[1]);
         }
         if (attribute.startsWith("label:")) {
           this.label = attributeSplit[1];
@@ -122,15 +106,9 @@ public class AttributeHolder
       }
       if (TypeAttribute.SQL.equals(this.type))
       {
-        Connection con = null;
-        try
-        {
-          DataSource dataSource = getDataSourceConnection();
-          if (dataSource != null)
-          {
-            con = dataSource.getConnection();
+        
+        try ( Connection con = engineSqlRequest.getConnection() ) {
             this.databaseProductName = con.getMetaData().getDatabaseProductName();
-          }
         }
         catch (Exception e)
         {
@@ -139,33 +117,9 @@ public class AttributeHolder
           String exceptionDetails = sw.toString();
           logger.severe("CustomPageTowTruck.AttributHolder.executeSqlQuery Error during execute getDatabaseProperties: " + e.toString() + 
             " : " + exceptionDetails);
-          if (con == null) {
-            return listEvents;
-          }
-          try
-          {
-            con.close();
-            con = null;
-          }
-          catch (SQLException localSQLException) {}
+          return listEvents;
         }
-        finally
-        {
-          if (con != null) {
-            try
-            {
-              con.close();
-              con = null;
-            }
-            catch (SQLException localSQLException1) {}
-          }
-        }
-        try
-        {
-          con.close();
-          con = null;
-        }
-        catch (SQLException localSQLException2) {}
+        
       }
       return listEvents;
     }
@@ -178,21 +132,21 @@ public class AttributeHolder
   
   public List<BEvent> execute(Map<String, AttributeHolder> allAnotherAttributes)
   {
-    List<BEvent> listEvents = new ArrayList<BEvent>();
+    List<BEvent> listEvents = new ArrayList<>();
     if (TypeAttribute.SQL.equals(this.type))
     {
-      String sqlRequest = (String)this.mapSqlRequests.get(this.databaseProductName);
+      String sqlRequest = this.mapSqlRequests.get(this.databaseProductName);
       if (sqlRequest == null) {
         sqlRequest = (String)this.mapSqlRequests.get("all");
       }
-      Map<String, Object> mapSql = new HashMap<String, Object>();
+      Map<String, Object> mapSql = new HashMap<>();
       mapSql.put("systemcurrenttimemillis", Long.valueOf(System.currentTimeMillis()));
       for (AttributeHolder attribut : allAnotherAttributes.values()) {
         mapSql.put(attribut.name, attribut.getShortValue());
       }
       PlaceHolder placeHolder = new PlaceHolder();
       String sqlRequestToExecute = placeHolder.replacePlaceHolder(sqlRequest, mapSql, "@@", "@@");
-      executeSqlQuery(sqlRequestToExecute);
+      engineSqlRequest.executeSqlQuery(sqlRequestToExecute, null);
       listEvents.addAll(this.listEventSqlQuery);
     }
     return listEvents;
@@ -205,7 +159,7 @@ public class AttributeHolder
   
   public Map<String, Object> getForm()
   {
-    Map<String, Object> result = new HashMap<String, Object>();
+    Map<String, Object> result = new HashMap<>();
     result.put("label", this.label);
     result.put("name", this.name);
     result.put("type", this.type.toString());
@@ -275,23 +229,22 @@ public class AttributeHolder
       String buildGroovyInitialisation = "{\n  def list=[]\n  Map record\n";
       for (Map<String, Object> record : this.listRecordsSqlQuery)
       {
-        String valueRecord = "";
-        for (String colId : record.keySet())
+        StringBuilder valueRecord = new StringBuilder();
+        for (Entry<String, Object> entry : record.entrySet())
         {
           if (valueRecord.length() > 0) {
-            valueRecord = valueRecord + ", ";
+            valueRecord.append( ", ");
           }
-          valueRecord = valueRecord + "\"" + colId + "\": ";
-          Object valueKey = record.get(colId);
-          if (valueKey == null) {
-            valueRecord = valueRecord + "null";
-          } else if (((valueKey instanceof Long)) || ((valueKey instanceof Integer))) {
-            valueRecord = valueRecord + valueKey;
+          valueRecord.append( "\"" + entry.getKey() + "\": ");
+          if (entry.getValue() == null) {
+              valueRecord.append( "null");
+          } else if (((entry.getValue() instanceof Long)) || ((entry.getValue() instanceof Integer))) {
+              valueRecord.append( entry.getValue());
           } else {
-            valueRecord = valueRecord + "\"" + valueKey.toString() + "\"";
+              valueRecord.append( "\"" + entry.getValue().toString() + "\"");
           }
         }
-        buildGroovyInitialisation = buildGroovyInitialisation + "  record=[" + valueRecord + "]\n  list.add(record)\n";
+        buildGroovyInitialisation = buildGroovyInitialisation + "  record=[" + valueRecord.toString() + "]\n  list.add(record)\n";
       }
       buildGroovyInitialisation = buildGroovyInitialisation + "  return list}()\n";
       return buildGroovyInitialisation;
@@ -303,128 +256,5 @@ public class AttributeHolder
   public List<Map<String, Object>> listRecordsSqlQuery = new ArrayList<Map<String, Object>>();
   public int totalCountSqlQuery;
   
-  private void executeSqlQuery(String sqlRequest)
-  {
-    logger.info("Custompage_twoTruck.AttributHolder execute sqlRequest[" + sqlRequest + "]");
-    this.listRecordsSqlQuery = new ArrayList<Map<String, Object>>();
-    Connection con = null;
-    PreparedStatement pstmt = null;
-    ResultSet rs = null;
-    try
-    {
-      DataSource dataSource = getDataSourceConnection();
-      if (dataSource == null)
-      {
-        this.listEventSqlQuery.add(EVENT_NO_DATASOURCE_FOUND);
-        return;
-      }
-      con = dataSource.getConnection();
-      
-      pstmt = con.prepareStatement(sqlRequest);
-      
-      rs = pstmt.executeQuery();
-      this.totalCountSqlQuery = 0;
-      while (rs.next())
-      {
-        this.totalCountSqlQuery += 1;
-        if (this.totalCountSqlQuery <= this.selectTop)
-        {
-          Map<String, Object> record = new HashMap<String, Object>();
-          
-          ResultSetMetaData rsMetaData = rs.getMetaData();
-          for (int i = 1; i <= rsMetaData.getColumnCount(); i++)
-          {
-            String colName = rsMetaData.getColumnName(i);
-            record.put(this.colSqlResult == TypeSqlResult.UPPERCASE ? colName.toUpperCase() : colName.toLowerCase(), rs.getObject(i));
-          }
-          this.listRecordsSqlQuery.add(record);
-        }
-      }
-    }
-    catch (Exception e)
-    {
-      StringWriter sw = new StringWriter();
-      e.printStackTrace(new PrintWriter(sw));
-      String exceptionDetails = sw.toString();
-      logger.severe("CustomPageTowTruck.AttributHolder.executeSqlQuery Error during execute Sql[" + sqlRequest + "] : " + e.toString() + 
-        " : " + exceptionDetails);
-      this.listEventSqlQuery.add(new BEvent(EVENT_SQLEXECUTION_ERROR, e, "SqlRequest=[" + sqlRequest + "]"));
-      if (rs != null) {
-        try
-        {
-          rs.close();
-          rs = null;
-        }
-        catch (SQLException localSQLException3) {}
-      }
-      if (pstmt != null) {
-        try
-        {
-          pstmt.close();
-          pstmt = null;
-        }
-        catch (SQLException localSQLException4) {}
-      }
-      if (con != null) {
-        try
-        {
-          con.close();
-          con = null;
-        }
-        catch (SQLException localSQLException5) {}
-      }
-    }
-    finally
-    {
-      if (rs != null) {
-        try
-        {
-          rs.close();
-          rs = null;
-        }
-        catch (SQLException localSQLException6) {}
-      }
-      if (pstmt != null) {
-        try
-        {
-          pstmt.close();
-          pstmt = null;
-        }
-        catch (SQLException localSQLException7) {}
-      }
-      if (con != null) {
-        try
-        {
-          con.close();
-          con = null;
-        }
-        catch (SQLException localSQLException8) {}
-      }
-    }
-  }
   
-  private String[] listDataSourcesEngine = { "java:/comp/env/bonitaSequenceManagerDS", 
-    "java:jboss/datasources/bonitaSequenceManagerDS" };
-  
-  private DataSource getDataSourceConnection()
-  {
-    String msg = "";
-    List<String> listDatasourceToCheck = new ArrayList<String> ();
-    for (String dataSourceString : this.listDataSourcesEngine) {
-      listDatasourceToCheck.add(dataSourceString);
-    }
-    for (String dataSourceString : listDatasourceToCheck) {
-      try
-      {
-        Object ctx = new InitialContext();
-        return (DataSource)((Context)ctx).lookup(dataSourceString);
-      }
-      catch (NamingException e)
-      {
-        msg = msg + "DataSource[" + dataSourceString + "] : error " + e.toString() + ";";
-      }
-    }
-    logger.severe("CustomPageTowTruck.AttributHolder.getDataSourceConnection: Can't found a datasource : " + msg);
-    return null;
-  }
 }
