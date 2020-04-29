@@ -2,8 +2,16 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.bonitasoft.custompage</groupId>
 	<artifactId>CustomPageTowTruck</artifactId>
-	<version>1.0.1</version>
+	<version>2.3</version>
 	<name>CustomPageTowTruck</name>
+	<properties>
+		<bonita.version>7.8.4</bonita.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<sonar.sources>pom.xml,src</sonar.sources>
+		<sonar.java.binaries>target/classes</sonar.java.binaries>
+
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.bonitasoft.engine</groupId>
@@ -20,7 +28,7 @@
 		<dependency>
 			<groupId>org.bonitasoft.log.event</groupId>
 			<artifactId>bonita-event</artifactId>
-			<version>1.5.0</version>
+			<version>1.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -28,12 +36,12 @@
 			<version>2.5</version>
 			<scope>provided</scope>
 		</dependency>
-	
+
 		<!-- to execute the Deploy Plugin -->
 		<dependency>
 			<groupId>org.bonitasoft.store</groupId>
 			<artifactId>bonita-store</artifactId>
-			<version>1.1.0</version>
+			<version>1.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bonitasoft.engine</groupId>
@@ -165,7 +173,7 @@
 								<!-- use UPDATE or DELETEANDADD -->
 								<argument>strategy:UPDATE</argument>
 								<argument>profile:BOTools</argument>
-								
+
 							</arguments>
 						</configuration>
 					</execution>
@@ -174,5 +182,5 @@
 
 		</plugins>
 	</build>
-	
+
 </project>
