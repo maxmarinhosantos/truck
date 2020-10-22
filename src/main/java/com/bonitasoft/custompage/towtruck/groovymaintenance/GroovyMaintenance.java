@@ -246,7 +246,7 @@ public class GroovyMaintenance {
                 listEvents.addAll(attribut.execute(mapPlaceHolder));
             }
             // now, get the value 
-            Map<String, Object> mapValuePlaceHolder = new HashMap<String, Object>();
+            Map<String, Object> mapValuePlaceHolder = new HashMap<>();
             for (AttributeHolder attribut : mapPlaceHolder.values()) {
                 mapValuePlaceHolder.put(attribut.key, attribut.getValue());
             }

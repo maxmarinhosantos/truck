@@ -204,8 +204,15 @@
 										<input ng-model="groovyparam.value" placeholder="{{groovyparam.placeholder}}"></input>
 										<br>
 										<div style="font-size:small">LIST format. Example: <div class="label label-default">12, 32, 54</div> or <div class="label label-default">"Blue"Red", "Yellow"</div></div>
+									</div>
+									<div ng-if="groovyparam.type=='SELECT'">
+										<select ng-model="groovyparam.value" placeholder="{{groovyparam.placeholder}}">
+											<option ng-repeat="item in groovyparam.listoptions" value="{{item}}">{{item}}</option>
+										</select>
+										<br>
 										
 									</div>
+									
 									<div ng-if="groovyparam.type=='INTEGER' ">
 										<input ng-model="groovyparam.value" type="integer" placeholder="{{groovyparam.placeholder}}">
 									</div>
