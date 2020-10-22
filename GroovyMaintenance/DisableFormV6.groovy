@@ -9,7 +9,7 @@ import com.bonitasoft.engine.api.ProcessAPI
 
 String operation= {{operation;
     type:select;
-    listoptions:Only Detection,Update form;
+    listoptions:Only Detection,Update forms;
     default:Only Detection
 }}
 List listFormIdTaskAuto = {{formIdTaskAuto;
@@ -55,7 +55,7 @@ for (FormMapping f: formMappings) {
     } else if (f.getType().equals("PROCESS_OVERVIEW")) {
         formId = formIdOverviewAuto;
     }
-    if ("Update form".equals(operation )) {
+    if ("Update forms".equals(operation )) {
         try {
             processAPI.updateFormMapping(f.getId(), null, formId);
             countFormUpdated++;
