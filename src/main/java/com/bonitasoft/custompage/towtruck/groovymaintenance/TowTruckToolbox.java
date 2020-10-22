@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.bonitasoft.custompage.towtruck.groovymaintenance.EngineSqlRequest.SqlResult;
+
 public class TowTruckToolbox {
 
     public TowTruckToolbox() {
@@ -24,8 +26,8 @@ public class TowTruckToolbox {
     public List<Map<String, Object>> executeSqlRequest(String sqlRequest, List<Object> parameters, int maxRecord) {
         EngineSqlRequest engineSqlRequest = new EngineSqlRequest();
         engineSqlRequest.selectTop = maxRecord;
-        engineSqlRequest.executeSqlQuery(sqlRequest, parameters);
-        return engineSqlRequest.listRecordsSqlQuery;
+        SqlResult sqlResult =  engineSqlRequest.executeSqlQuery(sqlRequest, parameters);
+        return sqlResult.listRecordsSqlQuery;
     }
 
     

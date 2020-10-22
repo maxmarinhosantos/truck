@@ -34,26 +34,30 @@ public class EngineSqlRequest {
             "Check the SQL request");
     public static Logger logger = Logger.getLogger(EngineSqlRequest.class.getName());
 
-    public List<BEvent> listEventSqlQuery = new ArrayList<>();
-    public List<Map<String, Object>> listRecordsSqlQuery = new ArrayList<>();
     public int totalCountSqlQuery;
     public int selectTop = -1;
     public TypeSqlResult colSqlResult = TypeSqlResult.UPPERCASE;
 
+    public class SqlResult {
+        public List<Map<String, Object>> listRecordsSqlQuery = new ArrayList<>();
+        public List<BEvent> listEventSqlQuery = new ArrayList<>();
+
+    }
     /**
      * @param sqlRequest
      */
-    public void executeSqlQuery(String sqlRequest, List<Object> parameters) {
+    public SqlResult executeSqlQuery(String sqlRequest, List<Object> parameters) {
         logger.info("Custompage_twoTruck.AttributHolder execute sqlRequest[" + sqlRequest + "]");
-        this.listRecordsSqlQuery = new ArrayList<Map<String, Object>>();
+        SqlResult sqlResult = new SqlResult();
+        
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             DataSource dataSource = getDataSourceConnection();
             if (dataSource == null) {
-                this.listEventSqlQuery.add(EVENT_NO_DATASOURCE_FOUND);
-                return;
+                sqlResult.listEventSqlQuery.add(EVENT_NO_DATASOURCE_FOUND);
+                return sqlResult;
             }
             con = dataSource.getConnection();
 
@@ -69,14 +73,14 @@ public class EngineSqlRequest {
             while (rs.next()) {
                 this.totalCountSqlQuery += 1;
                 if (this.selectTop== -1 || this.totalCountSqlQuery <= this.selectTop) {
-                    Map<String, Object> record = new HashMap<String, Object>();
+                    Map<String, Object> record = new HashMap<>();
 
                     ResultSetMetaData rsMetaData = rs.getMetaData();
                     for (int i = 1; i <= rsMetaData.getColumnCount(); i++) {
                         String colName = rsMetaData.getColumnName(i);
                         record.put(this.colSqlResult == TypeSqlResult.UPPERCASE ? colName.toUpperCase() : colName.toLowerCase(), rs.getObject(i));
                     }
-                    this.listRecordsSqlQuery.add(record);
+                    sqlResult.listRecordsSqlQuery.add(record);
                 }
             }
         } catch (Exception e) {
@@ -85,7 +89,7 @@ public class EngineSqlRequest {
             String exceptionDetails = sw.toString();
             logger.severe("CustomPageTowTruck.AttributHolder.executeSqlQuery Error during execute Sql[" + sqlRequest + "] : " + e.toString() +
                     " : " + exceptionDetails);
-            this.listEventSqlQuery.add(new BEvent(EVENT_SQLEXECUTION_ERROR, e, "SqlRequest=[" + sqlRequest + "]"));
+            sqlResult.listEventSqlQuery.add(new BEvent(EVENT_SQLEXECUTION_ERROR, e, "SqlRequest=[" + sqlRequest + "]"));
             if (rs != null) {
                 try {
                     rs.close();
@@ -130,6 +134,7 @@ public class EngineSqlRequest {
                 }
             }
         }
+        return sqlResult;
     }
 
     public Connection getConnection() throws SQLException {

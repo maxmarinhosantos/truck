@@ -13,6 +13,8 @@ import java.util.logging.Logger;
 
 import org.bonitasoft.log.event.BEvent;
 
+import com.bonitasoft.custompage.towtruck.groovymaintenance.EngineSqlRequest.SqlResult;
+
 public class AttributeHolder
 {
   private static final BEvent EVENT_BAD_DECODAGE = new BEvent(AttributeHolder.class.getName(), 3L, BEvent.Level.APPLICATIONERROR, "Bad decodage", 
@@ -30,7 +32,7 @@ public class AttributeHolder
   public TypeAttribute type;
   public String databaseProductName;
   
-  EngineSqlRequest engineSqlRequest = new EngineSqlRequest();
+ 
   public static enum TypeAttribute
   {
     STRING,  TEXT,  INTEGER,  HIDDEN,  READONLY,  SQL,  JSON,  LIST;
@@ -64,7 +66,7 @@ public class AttributeHolder
   
   public List<BEvent> decodeAttribute()
   {
-      List<BEvent> listEvents = new ArrayList<BEvent>();
+      List<BEvent> listEvents = new ArrayList<>();
     String attribute = "";
     try
     {
@@ -73,6 +75,7 @@ public class AttributeHolder
       this.name = listAttribute[0];
       this.label = this.name;
       this.type = TypeAttribute.STRING;
+      EngineSqlRequest engineSqlRequest = new EngineSqlRequest();
       for (int i = 1; i < listAttribute.length; i++)
       {
         attribute = listAttribute[i].trim();
@@ -146,7 +149,9 @@ public class AttributeHolder
       }
       PlaceHolder placeHolder = new PlaceHolder();
       String sqlRequestToExecute = placeHolder.replacePlaceHolder(sqlRequest, mapSql, "@@", "@@");
-      engineSqlRequest.executeSqlQuery(sqlRequestToExecute, null);
+      EngineSqlRequest engineSqlRequest = new EngineSqlRequest();
+      SqlResult sqlResult = engineSqlRequest.executeSqlQuery(sqlRequestToExecute, null);
+      listRecordsSqlQuery = sqlResult.listRecordsSqlQuery;
       listEvents.addAll(this.listEventSqlQuery);
     }
     return listEvents;
