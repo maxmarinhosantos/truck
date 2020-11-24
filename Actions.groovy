@@ -94,7 +94,7 @@ public class Actions {
     public final static String GROOVY_API_ACCESSOR = "apiAccessor";
     public final static String GROOVY_API_CLIENT = "apiClient";
     public final static String GROOVY_TOWTRUCKTOOLBOX = "towTruckToolbox";
-    
+
 
 
     /**
@@ -225,6 +225,12 @@ public class Actions {
             }
             actionAnswer.isManaged = true;
 
+            //Make sure no action is executed if the CSRF protection is active and the request header is invalid
+            if (! TokenValidator.checkCSRFToken(request, response)) {
+                actionAnswer.isResponseMap=false;
+                return actionAnswer;
+            }
+
             HttpSession httpSession = request.getSession();
             APISession session = pageContext.getApiSession();
             ProcessAPI processAPI = TenantAPIAccessor.getProcessAPI(session);
@@ -266,10 +272,10 @@ public class Actions {
                 if (accumulateJson==null)
                     accumulateJson="";
                 String firstUrl= request.getParameter("firstUrl");
-                
+
                 if ("1".equals(firstUrl))
-                   accumulateJson="";
-        
+                    accumulateJson="";
+
                 if (paramJsonPartial!=null)
                     accumulateJson += paramJsonPartial; //already decode by Tomcat  java.net.URLDecoder.decode(paramJsonPartial, "UTF-8");
 
@@ -295,15 +301,15 @@ public class Actions {
                 String accumulateJson = (String) httpSession.getAttribute("accumulate");
                 if (accumulateJson==null)
                     accumulateJson="";
-                    
+
                 String firstUrl= request.getParameter("firstUrl");
                 logger.info("FirstUrl="+firstUrl);
                 if ("1".equals(firstUrl)) {
-                  accumulateJson="";
+                    accumulateJson="";
                 }
-    
+
                 logger.info("accumulateJson="+accumulateJson);
-                    
+
                 if (paramJsonPartial!=null)
                     accumulateJson += paramJsonPartial; //already decode by Tomcat  java.net.URLDecoder.decode(paramJsonPartial, "UTF-8");
 
@@ -378,11 +384,11 @@ public class Actions {
                 String accumulateJson = (String) httpSession.getAttribute("accumulate");
                 if (accumulateJson==null)
                     accumulateJson="";
-                    
+
                 String firstUrl= request.getParameter("firstUrl");
                 if ("1".equals(firstUrl))
                     accumulateJson="";
-                    
+
                 accumulateJson += paramJsonPartial; // Tomcat already decode java.net.URLDecoder.decode(paramJsonPartial, "UTF-8");
                 httpSession.setAttribute("accumulate", accumulateJson);
                 actionAnswer.responseMap.put("status", "ok");
@@ -447,7 +453,7 @@ public class Actions {
         binding.setVariable(GROOVY_REST_API_CONTEXT, myRestContext);
         binding.setVariable(GROOVY_API_ACCESSOR, myApiAccessor );
         binding.setVariable(GROOVY_API_CLIENT, myAPIClient );
-        
+
         TowTruckToolbox towTruckToobox = new TowTruckToolbox();
         binding.setVariable(GROOVY_TOWTRUCKTOOLBOX, towTruckToobox );
 

@@ -18,12 +18,15 @@
 <link rel="stylesheet" href="style/main.css">
 <link rel="stylesheet" href="style/style.css">
 
+<!-- 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript" src="https://www.google.com/uds/?file=visualization&amp;v=1&amp;hl=fr&amp;packages=corechart&amp;async=2"></script>
 <link type="text/css" href="https://www.google.com/uds/api/visualization/1.0/ff67c3772da186a412ae3231c32409e9/ui+fr.css" rel="stylesheet">
 <script type="text/javascript" src="https://www.google.com/uds/api/visualization/1.0/ff67c3772da186a412ae3231c32409e9/format+fr,default+fr,ui+fr,corechart+fr.I.js"></script>
 <link href="https://ajax.googleapis.com/ajax/static/modules/gviz/1.0/core/tooltip.css" rel="stylesheet" type="text/css">
-
+ -->
+ 
+ 
 <style>
 .Loading {
 	display: inline-block;
@@ -60,7 +63,7 @@
 					<td rowspan="2"><img src="img/towtruck.jpg?" width="150" heigth="150" /></td>
 				</tr>
 				<tr>
-					<td style="font-size: 0.8em"><a href="" ng-click="towtruckctrl.showhistory( ! towtruckctrl.isshowhistory )">V2.4.2</a></td>
+					<td style="font-size: 0.8em"><a href="" ng-click="towtruckctrl.showhistory( ! towtruckctrl.isshowhistory )">V2.5.0</a></td>
 				</tr>
 			</table>
 		</center>
@@ -272,7 +275,7 @@
 			<div class="alert alert-success" ng-show="ctrl.groovy.result.length>0">Result:</div>
 			<div ng-bind-html="ctrl.trustAsHtml(ctrl.groovy.result)"></div>
 			
-			<div class="alert alert-danger" ng-show="ctrl.groovy.exception.length>0"><div ng-bind-html="ctrl.trustAsHtml(ctrl.groovy.exception)}}"></div></div>
+			<div class="alert alert-danger" ng-show="ctrl.groovy.exception.length>0"><div ng-bind-html="ctrl.trustAsHtml(ctrl.groovy.exception)"></div></div>
 			<input type="checkbox" ng-model="ctrl.groovy.showresolved">Show Groovy resolved
 			<div ng-show="ctrl.groovy.showresolved" class="well" " ng-bind-html="ctrl.groovy.groovyResolved"></div>
 		</div>
@@ -376,8 +379,7 @@
 	<script src="3rd-party/angular-bootstrap-tpls.min.js"></script>
 	<script src="3rd-party/angular-sanitize.min.js"></script>
 
-	<script src="twotruckmonitor.js?v=@_CURRENTTIMEMILIS_@"></script>
-
+	<script src="towtruckmonitor.js?v=@_CURRENTTIMEMILIS_@"></script>
 	<!-- Application dependencies -->
 	</center>
 </body>
