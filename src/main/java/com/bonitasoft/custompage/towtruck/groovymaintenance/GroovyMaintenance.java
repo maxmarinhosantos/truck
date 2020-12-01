@@ -79,20 +79,23 @@ public class GroovyMaintenance {
             List<BonitaStore> listStores = new ArrayList<>();
 
             File grovvyMaintenanceFile = new File(pageDirectory.getAbsolutePath() + "/GroovyMaintenance");
-            BonitaStore bonitaStoreDisk = bonitaStoreAPI.getDirectoryStore(grovvyMaintenanceFile, true);
+            BonitaStore bonitaStoreDisk = bonitaStoreAPI.getInstanceDirectoryStore(grovvyMaintenanceFile, true);
             listStores.add(bonitaStoreDisk);
 
-            BonitaStoreGit bonitaStoreGit = bonitaStoreAPI.getGitStore(BonitaStoreAPI.CommunityGithubUserName, BonitaStoreAPI.CommunityGithubPassword, "https://api.github.com/repos/Bonitasoft-Community/page_towtruck", true);
-            bonitaStoreGit.setSpecificRepository("/contents/GroovyMaintenance");
+            BonitaStoreGit bonitaStoreGit = bonitaStoreAPI.getInstanceBonitaCommunityStore( "https://api.github.com/repos/Bonitasoft-Community/page_towtruck", true);
+            bonitaStoreGit.setSpecificFolder("/contents/GroovyMaintenance");
             listStores.add(bonitaStoreGit);
 
             BonitaStoreParameters detectionParameters = new BonitaStoreParameters();
             detectionParameters.listTypeArtifacts = Arrays.asList(TypeArtifact.GROOVY);
+            detectionParameters.filterByName=groovyCode+".groovy";
             Artifact groovyArtefact = null;
 
             for (BonitaStore bonitaStore : listStores) {
                 BonitaStoreResult storeResult = bonitaStore.getListArtifacts(detectionParameters, logBox);
                 listEvents.addAll(storeResult.getEvents());
+                if (BEventFactory.isError(listEvents))
+                    break;
                 groovyArtefact = storeResult.getArtefactByName(groovyCode);
                 if (groovyArtefact != null) {
                     break;
