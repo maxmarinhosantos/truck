@@ -42,7 +42,7 @@ formIdOverviewAuto = listFormIdOverviewAuto.size()>0 ? listFormIdOverviewAuto.ge
 
 StringBuffer result = new StringBuffer();
 
-result.append("DisableFormV6: formIdTaskAuto:["+formIdTaskAuto+"] formIdProcAuto:["+formIdProcAuto+"] formIdOverviewAuto:["+formIdOverviewAuto+"]<br>");
+result.append("DisableFormV6: formIdTaskAuto:["+formIdTaskAuto+"] formIdProcAuto:["+formIdProcAuto+"] formIdOverviewAuto:["+formIdOverviewAuto+"] scope=["+scope+"] <br>");
 
 ProcessAPI processAPI = apiAccessor.getProcessAPI();
 List < FormMapping > formMappings = processAPI.searchFormMappings(
@@ -52,15 +52,18 @@ int countFormUpdated=0;
 for (FormMapping f: formMappings) {
   
   if (f.getTarget().equals(FormMappingTarget.LEGACY)) {
-     result.append("Form LEGACY "+f.getId()+"] Type:["+f.getType()+"]");
+      String typeForm = f.getType().toString();
+     result.append("Form LEGACY ["+f.getId()+"] Type:["+typeForm+"]");
     Long formId = null;
-    if (f.getType().equals("TASK")) {
+    if (f.getType().equals( FormMappingType.TASK )) {
         formId = formIdTaskAuto;
-        result.append(" Task["+g.getTask() +"]");
-    } else if (f.getType().equals("PROCESS_START")) { 
+        result.append(" Task["+f.getTask() +"]");
+    } else if (f.getType().equals( FormMappingType.PROCESS_START)) { 
         formId = formIdProcAuto;
-    } else if (f.getType().equals("PROCESS_OVERVIEW")) {
+        result.append("ProcessStart");
+    } else if (f.getType().equals(FormMappingType.PROCESS_OVERVIEW)) {
         // do not manage  the overview
+        result.append("ProcessOverview ");
         if ("Only forms".equals(scope)) {
             result.append("Overview ignored;");
             result.append("<br>");
