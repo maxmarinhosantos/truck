@@ -4,6 +4,7 @@ import org.bonitasoft.engine.form.FormMappingTarget
 import org.bonitasoft.engine.form.FormMappingType
 import org.bonitasoft.engine.search.SearchOptionsBuilder
 
+import org.bonitasoft.engine.bpm.process.ProcessDefinition;
 import com.bonitasoft.engine.api.APIAccessor
 import com.bonitasoft.engine.api.ProcessAPI
 
@@ -45,20 +46,25 @@ StringBuffer result = new StringBuffer();
 result.append("DisableFormV6: formIdTaskAuto:["+formIdTaskAuto+"] formIdProcAuto:["+formIdProcAuto+"] formIdOverviewAuto:["+formIdOverviewAuto+"] scope=["+scope+"] <br>");
 
 ProcessAPI processAPI = apiAccessor.getProcessAPI();
-List < FormMapping > formMappings = processAPI.searchFormMappings(
-new SearchOptionsBuilder(0, 1000).done()).getResult();
+List < FormMapping > formMappings = processAPI.searchFormMappings(new SearchOptionsBuilder(0, 1000).done()).getResult();
 
 int countFormUpdated=0;
 for (FormMapping f: formMappings) {
-  
-  if (f.getTarget().equals(FormMappingTarget.LEGACY)) {
-      String typeForm = f.getType().toString();
-     result.append("Form LEGACY ["+f.getId()+"] Type:["+typeForm+"]");
+    
+    Long processDefinitionId = f.getProcessDefinitionId();
+    ProcessDefinition processDefinition = processAPI.getProcessDefinition( processDefinitionId );
+    result.append("Process["+ processDefinition.getName()+" ("+processDefinition.getVersion()+")] ");
+
+    if (! f.getTarget().equals(FormMappingTarget.LEGACY)) {
+        continue;
+    }
+    String typeForm = f.getType().toString();
+    result.append("Form LEGACY ["+f.getId()+"] Type:["+typeForm+"]");
     Long formId = null;
     if (f.getType().equals( FormMappingType.TASK )) {
         formId = formIdTaskAuto;
         result.append(" Task["+f.getTask() +"]");
-    } else if (f.getType().equals( FormMappingType.PROCESS_START)) { 
+    } else if (f.getType().equals( FormMappingType.PROCESS_START)) {
         formId = formIdProcAuto;
         result.append("ProcessStart");
     } else if (f.getType().equals(FormMappingType.PROCESS_OVERVIEW)) {
@@ -67,7 +73,7 @@ for (FormMapping f: formMappings) {
         if ("Only forms".equals(scope)) {
             result.append("Overview ignored;");
             result.append("<br>");
-            continue; 
+            continue;
         }
         formId = formIdOverviewAuto;
     }
@@ -76,7 +82,7 @@ for (FormMapping f: formMappings) {
             processAPI.updateFormMapping(f.getId(), null, formId);
             countFormUpdated++;
             result.append("Updated");
-        } catch(Exception e) 
+        } catch(Exception e)
         {
             result.append("Error "+e.getMessage());
         }
@@ -86,7 +92,7 @@ for (FormMapping f: formMappings) {
         result.append("Detected");
     }
     result.append("<br>");
-  }
+    
 }
 result.append("Number of LEGACY form in scope : "+countFormUpdated+"<br>");
 return result.toString();
