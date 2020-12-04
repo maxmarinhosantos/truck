@@ -1,4 +1,15 @@
-//---------------------------------------------------------------------------------------------
+
+/* ****************************************************************** */
+/*                                                                    */
+/* Name: DisableFormV6                                                */
+/*                                                                    */
+/* Version: 1.1.0                                                     */
+/*                                                                    */
+/* Description: Detect all form V6 (LEGACY) and replace it by the     */
+/*   the default form V7                                              */
+/*                                                                    */
+/* ****************************************************************** */
+
 import org.bonitasoft.engine.form.FormMapping
 import org.bonitasoft.engine.form.FormMappingTarget
 import org.bonitasoft.engine.form.FormMappingType
