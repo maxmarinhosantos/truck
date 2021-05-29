@@ -62,27 +62,29 @@ List < FormMapping > formMappings = processAPI.searchFormMappings(new SearchOpti
 int countFormUpdated=0;
 for (FormMapping f: formMappings) {
     
+ 
+    if (! f.getTarget().equals(FormMappingTarget.LEGACY)) {
+        continue;
+    }
+
     Long processDefinitionId = f.getProcessDefinitionId();
     ProcessDefinition processDefinition = processAPI.getProcessDefinition( processDefinitionId );
     result.append("Process["+ processDefinition.getName()+" ("+processDefinition.getVersion()+")] ");
 
-    if (! f.getTarget().equals(FormMappingTarget.LEGACY)) {
-        continue;
-    }
     String typeForm = f.getType().toString();
-    result.append("Form LEGACY ["+f.getId()+"] Type:["+typeForm+"]");
+    result.append("Form LEGACY Id:["+f.getId()+"] Type:["+typeForm+"],");
     Long formId = null;
     if (f.getType().equals( FormMappingType.TASK )) {
         formId = formIdTaskAuto;
-        result.append(" Task["+f.getTask() +"]");
+        result.append("Task:["+f.getTask() +"],");
     } else if (f.getType().equals( FormMappingType.PROCESS_START)) {
         formId = formIdProcAuto;
-        result.append("ProcessStart");
+        result.append("ProcessStart,");
     } else if (f.getType().equals(FormMappingType.PROCESS_OVERVIEW)) {
         // do not manage  the overview
-        result.append("ProcessOverview ");
+        result.append("ProcessOverview,");
         if ("Only forms".equals(scope)) {
-            result.append("Overview ignored;");
+            result.append("  ** Overview ignored** ;");
             result.append("<br>");
             continue;
         }
@@ -92,15 +94,15 @@ for (FormMapping f: formMappings) {
         try {
             processAPI.updateFormMapping(f.getId(), null, formId);
             countFormUpdated++;
-            result.append("Updated");
+            result.append(" -- Updated --");
         } catch(Exception e)
         {
-            result.append("Error "+e.getMessage());
+            result.append(" -- Error "+e.getMessage());
         }
     }
     else {
         countFormUpdated++;
-        result.append("Detected");
+        result.append(" -- Detected --");
     }
     result.append("<br>");
     

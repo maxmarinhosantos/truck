@@ -102,7 +102,10 @@ public class GroovyMaintenance {
                 }
             }
 
-            if (groovyArtefact == null) {
+            if (BEventFactory.isError(listEvents)) {
+                // already traced
+            }
+            else if (groovyArtefact == null) {
                 listEvents.add(new BEvent(NO_CODE_FOUND, "Code[" + groovyCode + "]"));
             } else {
 
